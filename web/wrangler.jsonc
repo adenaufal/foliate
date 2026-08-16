@@ -17,10 +17,9 @@
   ],
   "observability": { "enabled": true },
   "vars": {
-    // Public URL of the compile-service. This localhost default only works when
-    // you tunnel/run the service locally — for the real deploy, override it in
-    // the Cloudflare dashboard (Workers & Pages → foliate → Settings →
-    // Variables) with your Render URL, e.g. https://foliate-compile.onrender.com
-    "COMPILE_SERVICE_URL": "http://127.0.0.1:8723"
+    // Public URL of the compile-service on Render. Committed here (not a
+    // dashboard var) on purpose: `wrangler deploy` overwrites dashboard vars
+    // from this block on every deploy, so this is the single source of truth.
+    "COMPILE_SERVICE_URL": "https://foliate-compile.onrender.com"
   }
 }
