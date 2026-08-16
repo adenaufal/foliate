@@ -122,20 +122,35 @@ export const localDriver: StorageDriver = {
         await w.close();
         return handle.name;
       } catch (e) {
-        // AbortError = the user closed the dialog. Anything else is real.
+        // AbortError = the user closed the dialog; respect it, save nothing.
         if ((e as DOMException)?.name === "AbortError") return null;
-        throw e;
+        // Anything else — most often the transient user activation expiring
+        // while the export compiled (a multi-second round-trip to the compile
+        // service spends the gesture, and showSaveFilePicker then throws a
+        // SecurityError) — falls through to the anchor download so the file
+        // still lands, just in the default folder.
       }
     }
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-    return filename;
+    return anchorDownload(blob, filename);
   },
 };
+
+/** Programmatic download — the fallback when the File System Access picker is
+ *  absent (Firefox/Safari) or unusable (activation spent during compile). The
+ *  anchor is appended before clicking (Firefox ignores a detached one) and the
+ *  object URL is revoked on a delay so the download has time to start. */
+function anchorDownload(blob: Blob, filename: string): string {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.rel = "noopener";
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  return filename;
+}
 
 type FilePickerType = { description?: string; accept: Record<string, string[]> };
 
