@@ -1,0 +1,18 @@
+# Render blueprint for the Foliate compile-service (Typst + Pandoc).
+# Deploy: Render dashboard → New → Blueprint → pick this repo. Render reads this
+# file, builds compile-service/Dockerfile, and gives you a public
+# https://<name>.onrender.com URL. Put that URL into the Cloudflare app's
+# COMPILE_SERVICE_URL variable.
+#
+# Free plan note: the instance sleeps after ~15 min idle and cold-starts in
+# ~50 s. The first compile after a sleep is slow; subsequent ones are fast.
+services:
+  - type: web
+    name: foliate-compile
+    runtime: docker
+    dockerfilePath: compile-service/Dockerfile
+    dockerContext: compile-service
+    plan: free
+    region: singapore
+    healthCheckPath: /health
+    autoDeploy: true

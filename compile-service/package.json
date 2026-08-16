@@ -1,0 +1,19 @@
+{
+  "name": "foliate-compile-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Foliate M1 — stateless Typst compile service (Markdown -> publisher-grade PDF)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "dev": "node --watch src/server.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "smoke:http": "node scripts/smoke-http.mjs"
+  },
+  "dependencies": {
+    "fastify": "^5.2.0"
+  }
+}

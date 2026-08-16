@@ -1,0 +1,4 @@
+# Local vars for `wrangler dev` / `opennextjs-cloudflare preview`.
+# Copy to `.dev.vars` (gitignored) and adjust. In real dev you usually run the
+# compile-service on 127.0.0.1:8723, so this default is fine.
+COMPILE_SERVICE_URL=http://127.0.0.1:8723

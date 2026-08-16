@@ -1,0 +1,26 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  "name": "foliate",
+  "compatibility_date": "2025-08-15",
+  // nodejs_compat: the app's Route Handlers run on the Node runtime (the
+  //   /api/compile proxy declares `runtime = "nodejs"`).
+  // global_fetch_strictly_public: required by @opennextjs/cloudflare.
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    // Self-reference for cache revalidation; service name must equal `name`.
+    { "binding": "WORKER_SELF_REFERENCE", "service": "foliate" }
+  ],
+  "observability": { "enabled": true },
+  "vars": {
+    // Public URL of the compile-service. This localhost default only works when
+    // you tunnel/run the service locally — for the real deploy, override it in
+    // the Cloudflare dashboard (Workers & Pages → foliate → Settings →
+    // Variables) with your Render URL, e.g. https://foliate-compile.onrender.com
+    "COMPILE_SERVICE_URL": "http://127.0.0.1:8723"
+  }
+}

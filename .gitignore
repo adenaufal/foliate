@@ -1,0 +1,53 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.*
+
+# build output
+.next/
+out/
+.open-next/
+.wrangler/
+build/
+dist/
+
+# env / secrets
+.env
+.env.*
+!.env.example
+.dev.vars
+!.dev.vars.example
+
+# cloudflare
+cloudflare-env.d.ts
+
+# logs / debug
+*.log
+*-debug.log*
+npm-debug.log*
+
+# compile-service runtime artifacts (per-request workdirs, stray renders)
+compile-service/.work/
+compile-service/.work-*
+
+# os
+.DS_Store
+Thumbs.db
+
+# local-only tooling
+.claude/
+.playwright-mcp/
+.shots/
+skills-lock.json
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# --- kept out of the public repo (planning / strategy docs) ---
+BUILD-PLAN.md
+PRD-ebook-generator.md
+HANDOFF-foliate-mvp.md
+
+# working screenshots at repo root
+/*.png
