@@ -14,19 +14,20 @@ import { BRAND_NAME, COPY } from "@/lib/brand";
  */
 export function AppShell({ children }: { children: ReactNode }) {
   return (
-    <div className="grid min-h-[100dvh] grid-rows-[auto_1fr] bg-paper">
-      <header className="sticky top-0 z-20 border-b border-hairline bg-paper/85 backdrop-blur-sm">
-        <div className="mx-auto flex h-13 max-w-[1400px] items-center gap-3 px-4 sm:px-6">
+    <div className="grid min-h-dvh grid-rows-[auto_1fr] bg-paper">
+      <header className="sticky top-0 z-[var(--z-sticky)] border-b border-hairline bg-paper/90 pt-safe backdrop-blur-sm">
+        <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-3 px-page">
           <Link
             href="/library"
             aria-label={COPY.backToLibrary}
-            className="shrink-0 font-display text-lg leading-none tracking-tight text-ink transition-opacity duration-150 hover:opacity-70"
+            translate="no"
+            className="shrink-0 font-display text-lg leading-none tracking-tight text-ink transition-opacity duration-150 ease-[var(--ease-enter)] hover:opacity-70"
             style={{ fontVariationSettings: '"SOFT" 40, "WONK" 1' }}
           >
             {BRAND_NAME}
           </Link>
 
-          <div className="ml-auto flex shrink-0 items-center gap-1">
+          <div className="ml-auto flex shrink-0 items-center gap-0.5">
             <ThemeToggle />
             <AccountMenu />
           </div>
@@ -35,7 +36,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* min-h-0/min-w-0 so a route can be `h-full` with its own inner scroll
           instead of growing the page. */}
-      <main className="min-h-0 min-w-0">{children}</main>
+      <main id="main" className="min-h-0 min-w-0">
+        {children}
+      </main>
     </div>
   );
 }

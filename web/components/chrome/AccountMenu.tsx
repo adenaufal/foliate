@@ -20,7 +20,7 @@ export function AccountMenu() {
           A
         </span>
       }
-      triggerClassName="grid size-9 shrink-0 place-items-center rounded-md transition-transform duration-150 active:scale-[0.96]"
+      triggerClassName="btn-icon shrink-0"
       panelClassName="w-56 max-w-[calc(100vw-1.5rem)]"
     >
       {({ close }) => (
@@ -35,9 +35,9 @@ export function AccountMenu() {
             <Link
               href="/settings"
               onClick={close}
-              className="flex items-center gap-2 rounded-md px-2.5 py-2 text-sm text-ink transition-colors duration-150 hover:bg-field"
+              className="tap flex items-center gap-2 rounded-[calc(var(--radius-xl)-0.25rem)] px-2.5 py-2 text-sm text-ink transition-colors duration-150 ease-[var(--ease-enter)] hover:bg-field"
             >
-              <GearIcon size={15} weight="regular" className="text-muted" />
+              <GearIcon size={15} weight="regular" className="text-muted" aria-hidden />
               Pengaturan
             </Link>
           </div>

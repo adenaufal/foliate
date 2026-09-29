@@ -8,7 +8,7 @@ import { storage } from "@/lib/storage";
 import { ProjectCard } from "./ProjectCard";
 import { createProject, updateProject, type LibraryProject } from "./thumbnail";
 
-const GRID = "grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4 xl:grid-cols-5";
+const GRID = "grid grid-cols-1 min-[420px]:grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4 xl:grid-cols-5";
 
 type State =
   | { status: "loading" }
@@ -111,8 +111,8 @@ export function ProjectLibrary() {
   }
 
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="mx-auto max-w-[1400px] px-page py-10 sm:py-12">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl tracking-tight">{COPY.libraryTitle}</h1>
         {projects.length > 0 && (
           <PrimaryButton onClick={() => openNew()} disabled={pending}>
@@ -149,7 +149,7 @@ export function ProjectLibrary() {
         <div className="mt-4 max-w-[46ch]">
           <p className="text-base">{COPY.libraryEmptyTitle}</p>
           <p className="mt-1 text-sm leading-relaxed text-muted">{COPY.libraryEmptyBody}</p>
-          <div className="mt-6 flex flex-col gap-2 md:flex-row">
+          <div className="mt-6 flex flex-col gap-2 sm:flex-row">
             <PrimaryButton onClick={() => openNew()} disabled={pending}>
               {COPY.newProject}
             </PrimaryButton>
@@ -182,7 +182,7 @@ export function ProjectLibrary() {
         aria-labelledby="confirm-delete"
         // Same dim as ExportDialog: two dialogs, one backdrop language, and the
         // more consequential one does not get the weaker treatment.
-        className="m-auto w-[min(26rem,calc(100vw-2rem))] rounded-xl border border-hairline bg-paper p-5 text-ink backdrop:bg-scrim/45"
+        className="m-auto w-[min(26rem,calc(100vw-2rem))] rounded-xl border border-hairline bg-paper p-5 text-ink shadow-page backdrop:bg-scrim/45"
       >
         {/* No trash, so the copy says so outright. */}
         <p id="confirm-delete" className="text-base">
@@ -192,7 +192,7 @@ export function ProjectLibrary() {
           Proyek ini tidak bisa dikembalikan.
         </p>
         <p className="mt-3 truncate text-sm">{doomed?.title}</p>
-        <div className="mt-6 flex flex-col gap-2 md:flex-row md:justify-end">
+        <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-end">
           <GhostButton onClick={() => setDoomed(null)}>Batal</GhostButton>
           <PrimaryButton onClick={() => doomed && destroy(doomed)}>Hapus</PrimaryButton>
         </div>
@@ -244,7 +244,7 @@ function PrimaryButton(props: React.ComponentProps<"button">) {
     <button
       type="button"
       {...props}
-      className="h-10 w-full rounded-md bg-accent px-4 text-sm font-medium text-on-accent transition-transform duration-150 active:scale-[0.98] disabled:opacity-60 md:w-auto"
+      className="btn btn-primary w-full sm:w-auto"
     />
   );
 }
@@ -254,7 +254,7 @@ function GhostButton(props: React.ComponentProps<"button">) {
     <button
       type="button"
       {...props}
-      className="h-10 w-full rounded-md border border-hairline px-4 text-sm text-ink transition-[transform,background-color] duration-150 hover:bg-field active:scale-[0.98] disabled:opacity-60 md:w-auto"
+      className="btn btn-ghost w-full sm:w-auto"
     />
   );
 }

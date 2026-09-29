@@ -125,7 +125,7 @@ export function PagePreview({ status, projectId, trim, onPageCount }: PagePrevie
 
       {pages > 0 && (
         <p
-          className={`pointer-events-none absolute bottom-5 left-1/2 -translate-x-1/2 rounded-md border border-hairline bg-paper/90 px-2.5 py-1 text-2xs tabular-nums text-muted backdrop-blur-[2px] transition-opacity duration-500 ${
+          className={`pointer-events-none absolute left-1/2 bottom-[max(1.25rem,var(--safe-bottom))] -translate-x-1/2 rounded-md border border-hairline bg-paper/90 px-2.5 py-1 text-2xs tabular-nums text-muted backdrop-blur-[2px] transition-opacity duration-500 ease-[var(--ease-enter)] ${
             pillOn ? "opacity-100" : "opacity-0"
           }`}
         >

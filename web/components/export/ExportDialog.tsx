@@ -117,15 +117,20 @@ export function ExportDialog({ open, onClose, title, trim, pdfUrl, onExport }: E
                   aria-checked={includeToc}
                   aria-label="Sertakan TOC"
                   onClick={() => setIncludeToc((v) => !v)}
-                  className={`h-6 w-11 shrink-0 rounded-full border border-hairline transition-colors duration-150 ${
-                    includeToc ? "bg-accent" : "bg-field"
-                  }`}
+                  className="tap inline-flex h-11 items-center"
                 >
                   <span
-                    className={`block size-4.5 rounded-full bg-paper transition-transform duration-150 ${
-                      includeToc ? "translate-x-5.5" : "translate-x-0.5"
+                    aria-hidden
+                    className={`block h-6 w-11 rounded-full border border-hairline transition-colors duration-150 ease-[var(--ease-enter)] ${
+                      includeToc ? "bg-accent" : "bg-field"
                     }`}
-                  />
+                  >
+                    <span
+                      className={`mt-0.5 block size-4.5 rounded-full bg-paper transition-transform duration-150 ease-[var(--ease-enter)] ${
+                        includeToc ? "translate-x-5.5" : "translate-x-0.5"
+                      }`}
+                    />
+                  </span>
                 </button>
               </Row>
 
@@ -139,6 +144,8 @@ export function ExportDialog({ open, onClose, title, trim, pdfUrl, onExport }: E
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   spellCheck={false}
+                  autoComplete="off"
+                  name="export-filename"
                   className="h-10 w-full rounded-md border border-hairline bg-paper px-3 text-sm text-ink"
                 />
                 <p className="truncate font-mono text-2xs text-muted">
@@ -158,7 +165,7 @@ export function ExportDialog({ open, onClose, title, trim, pdfUrl, onExport }: E
                 type="button"
                 onClick={submit}
                 disabled={busy}
-                className="mt-auto h-10 w-full rounded-md bg-accent px-4 text-sm font-medium text-on-accent transition-transform duration-150 active:scale-[0.98] disabled:opacity-60"
+                className="btn btn-primary mt-auto w-full"
               >
                 {busy ? "Menyusun…" : `${COPY.export} ${label}`}
               </button>
@@ -181,9 +188,9 @@ export function ExportDialog({ open, onClose, title, trim, pdfUrl, onExport }: E
             onClick={() => ref.current?.close()}
             aria-label="Tutup"
             title="Tutup"
-            className="absolute right-3 top-3 grid size-9 place-items-center rounded-md text-muted transition-[color,transform] duration-150 hover:text-ink active:scale-[0.96]"
+            className="btn-icon absolute right-2.5 top-2.5"
           >
-            <XIcon size={16} weight="regular" />
+            <XIcon size={16} weight="regular" aria-hidden />
           </button>
         </div>
       </dialog>
@@ -193,7 +200,8 @@ export function ExportDialog({ open, onClose, title, trim, pdfUrl, onExport }: E
       {toast && (
         <div
           role="status"
-          className="fixed bottom-4 right-4 z-50 flex max-w-[calc(100vw-2rem)] items-start gap-3 rounded-lg border border-hairline bg-paper px-4 py-3 shadow-page"
+          aria-live="polite"
+          className="fixed right-[max(1rem,var(--safe-right))] bottom-[max(1rem,var(--safe-bottom))] z-[var(--z-toast)] flex max-w-[calc(100vw-2rem)] items-start gap-3 rounded-lg border border-hairline bg-paper px-4 py-3 shadow-page"
         >
           <div className="min-w-0">
             <p className="text-sm">{toast.format.toUpperCase()} tersimpan</p>
@@ -203,9 +211,9 @@ export function ExportDialog({ open, onClose, title, trim, pdfUrl, onExport }: E
             type="button"
             onClick={() => setToast(null)}
             aria-label="Tutup"
-            className="-mr-1 grid size-6 shrink-0 place-items-center rounded-sm text-muted transition-colors duration-150 hover:text-ink"
+            className="btn-icon -mr-1 size-8"
           >
-            <XIcon size={14} weight="regular" />
+            <XIcon size={14} weight="regular" aria-hidden />
           </button>
         </div>
       )}
@@ -253,7 +261,7 @@ function Segmented<T>({
           type="button"
           aria-pressed={selected(o.value)}
           onClick={() => onSelect(o.value)}
-          className={`shrink-0 grow whitespace-nowrap rounded-sm px-3 py-1.5 text-sm transition-[color,background-color] duration-150 active:scale-[0.98] ${
+          className={`shrink-0 grow whitespace-nowrap rounded-[calc(var(--radius-md)-2px)] px-3 py-1.5 text-sm transition-[color,background-color,scale] duration-150 ease-[var(--ease-enter)] active:scale-[0.96] ${
             mono ? "font-mono text-2xs" : ""
           } ${selected(o.value) ? "bg-field text-ink" : "text-muted hover:text-ink"}`}
         >
@@ -350,7 +358,7 @@ function FirstPage({ pdfUrl, trim }: { pdfUrl: string | null; trim: Trim }) {
       ref={wrap}
       // Trim-sized before anything paints, so the sheet never changes shape.
       style={{ aspectRatio: trimAspect(trim) }}
-      className="relative w-full max-w-[420px] overflow-hidden rounded-sm border border-hairline shadow-page"
+      className="page-edge relative w-full max-w-[420px] overflow-hidden rounded-sm border border-hairline shadow-page"
     >
       {/* Nothing yet: an empty page outline. No shimmer — shimmer means
           "working" and must not also mean "empty" (UI-REFERENCE). */}

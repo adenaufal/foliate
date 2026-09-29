@@ -40,7 +40,7 @@ export function TrimSelector({
       trigger={
         <>
           <span className="tabular-nums">{trimLabel(trim)}</span>
-          <CaretDownIcon size={13} weight="bold" />
+          <CaretDownIcon size={13} weight="bold" className="translate-y-px" aria-hidden />
         </>
       }
       panelClassName="w-64 max-w-[calc(100vw-1.5rem)]"
@@ -125,7 +125,7 @@ function Row({
       onClick={onClick}
       aria-pressed={active}
       aria-expanded={expanded}
-      className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left transition-[background-color,transform] duration-150 hover:bg-field active:scale-[0.99]"
+      className="tap flex w-full items-center gap-2.5 rounded-[calc(var(--radius-xl)-0.25rem)] px-2.5 py-2 text-left transition-[background-color,scale] duration-150 ease-[var(--ease-enter)] hover:bg-field active:scale-[0.96]"
     >
       {/* Square, like the sheets in the preview stack. The swatch is ~15px wide
           at 5×8, and the smallest radius on the scale — 4px — rounds away more

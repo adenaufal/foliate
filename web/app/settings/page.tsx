@@ -11,23 +11,29 @@ export const metadata = { title: "Pengaturan" };
 export default function SettingsPage() {
   return (
     <AppShell>
-      <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6">
-        <h1 className="text-xl tracking-tight">Pengaturan</h1>
-        <dl className="mt-6 max-w-[65ch] divide-y divide-hairline border-t border-hairline text-sm">
-          <div className="grid gap-1 py-4 sm:grid-cols-[12rem_1fr]">
+      <div className="mx-auto max-w-[1400px] px-page py-10 sm:py-12">
+        <h1 className="text-2xl tracking-tight">Pengaturan</h1>
+        <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-muted">
+          Foliate menyimpan pekerjaanmu di perangkat ini. Template, ukuran halaman, dan tema
+          diatur per proyek dari editor.
+        </p>
+        <dl className="mt-8 max-w-[65ch] divide-y divide-hairline border-y border-hairline text-sm">
+          <div className="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-6">
             <dt className="text-muted">Penyimpanan</dt>
-            <dd>Lokal — proyek disimpan di peramban ini, bukan di server.</dd>
+            <dd className="min-w-0">Lokal. Proyek disimpan di peramban ini, bukan di server.</dd>
           </div>
-          <div className="grid gap-1 py-4 sm:grid-cols-[12rem_1fr]">
+          <div className="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-6">
             <dt className="text-muted">Ekspor</dt>
-            <dd>Berkas ditulis lewat dialog simpan; kamu yang pilih foldernya.</dd>
+            <dd className="min-w-0">Berkas ditulis lewat dialog simpan; kamu yang pilih foldernya.</dd>
           </div>
-          <div className="grid gap-1 py-4 sm:grid-cols-[12rem_1fr]">
+          <div className="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-6">
             <dt className="text-muted">Compile</dt>
-            <dd>Typst berjalan di layanan lokal; tidak ada manuskrip yang dikirim keluar.</dd>
+            <dd className="min-w-0">Typst berjalan di layanan lokal; tidak ada manuskrip yang dikirim keluar.</dd>
           </div>
         </dl>
-        <p className="mt-8 font-mono text-2xs text-muted">{BRAND_NAME} · v0</p>
+        <p translate="no" className="mt-10 font-mono text-2xs text-muted">
+          {BRAND_NAME} v0
+        </p>
       </div>
     </AppShell>
   );

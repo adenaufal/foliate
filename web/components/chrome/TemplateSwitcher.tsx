@@ -33,7 +33,7 @@ export function TemplateSwitcher({
         <>
           <span className="hidden sm:inline">{active.label}</span>
           <span className="sm:hidden">Template</span>
-          <CaretDownIcon size={13} weight="bold" />
+          <CaretDownIcon size={13} weight="bold" className="translate-y-px" aria-hidden />
         </>
       }
       panelClassName="w-[34rem] max-w-[calc(100vw-1.5rem)]"
@@ -52,7 +52,7 @@ export function TemplateSwitcher({
                     onTemplateChange(t.id);
                     close();
                   }}
-                  className={`flex items-center gap-3 rounded-lg border p-2 text-left transition-[border-color,background-color,transform] duration-150 active:scale-[0.99] min-[420px]:block ${
+                  className={`flex items-center gap-3 rounded-[calc(var(--radius-xl)-0.125rem)] border p-2 text-left transition-[border-color,background-color,scale] duration-150 ease-[var(--ease-enter)] active:scale-[0.96] min-[420px]:block ${
                     selected
                       ? "border-transparent ring-[1.5px] ring-accent"
                       : "border-hairline hover:bg-field"

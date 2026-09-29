@@ -69,14 +69,14 @@ export function ProjectCard({ project, onRename, onDuplicate, onDelete }: Projec
             aria-label={`Aksi untuk ${project.title}`}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((v) => !v)}
-            className="grid size-8 place-items-center rounded-md border border-hairline bg-paper/90 text-muted backdrop-blur-sm transition-[color,transform] duration-150 hover:text-ink active:scale-[0.94]"
+            className="tap grid size-8 place-items-center rounded-md border border-hairline bg-paper/90 text-muted backdrop-blur-sm transition-[color,scale] duration-150 ease-[var(--ease-enter)] hover:text-ink active:scale-[0.96]"
           >
-            <DotsThreeIcon size={17} weight="bold" />
+            <DotsThreeIcon size={17} weight="bold" aria-hidden />
           </button>
 
           {menuOpen && (
-            <div className="absolute right-0 top-9 w-44 overflow-hidden rounded-lg border border-hairline bg-paper py-1 shadow-page">
-              <Link href={href} autoFocus className="block px-3 py-1.5 text-sm hover:bg-field">
+            <div className="absolute right-0 top-9 w-44 overflow-hidden rounded-[calc(var(--radius-xl))] border border-hairline bg-paper py-1 shadow-page">
+              <Link href={href} autoFocus className="tap flex min-h-9 items-center px-3 text-sm hover:bg-field">
                 Buka
               </Link>
               <MenuItem onClick={startRename}>Ganti nama</MenuItem>
@@ -141,7 +141,7 @@ function MenuItem({ className = "", ...props }: React.ComponentProps<"button">) 
     <button
       type="button"
       {...props}
-      className={`block w-full px-3 py-1.5 text-left text-sm hover:bg-field ${className}`}
+      className={`tap flex min-h-9 w-full items-center px-3 text-left text-sm hover:bg-field ${className}`}
     />
   );
 }
@@ -152,7 +152,7 @@ function Sheet({ project }: { project: LibraryProject }) {
   const face = FACES[project.template] ?? FACES.literary;
   return (
     <div
-      className="w-full overflow-hidden rounded-sm border border-hairline bg-paper shadow-page transition-transform duration-200 ease-out group-hover:-translate-y-0.5"
+      className="page-edge w-full overflow-hidden rounded-sm border border-hairline bg-paper shadow-page lift"
       style={{ aspectRatio: trimAspect(project.trim), containerType: "inline-size" }}
     >
       {project.thumbnail ? (

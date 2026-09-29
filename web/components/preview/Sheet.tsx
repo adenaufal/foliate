@@ -32,7 +32,7 @@ export function Sheet({
       className={
         variant === "outline"
           ? `${BASE} grid place-items-center px-6 text-center`
-          : `${BASE} bg-paper shadow-page`
+          : `${BASE} page-edge bg-paper shadow-page`
       }
     >
       {variant === "skeleton" ? (

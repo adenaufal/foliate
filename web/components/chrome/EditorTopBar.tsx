@@ -30,12 +30,13 @@ export function EditorTopBar({
   themePresets,
 }: EditorTopBarProps) {
   return (
-    <header className="sticky top-0 z-20 border-b border-hairline bg-paper/85 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-x-2 gap-y-1 px-4 py-2 sm:h-13 sm:flex-nowrap sm:gap-x-3 sm:px-6 sm:py-0">
+    <header className="sticky top-0 z-[var(--z-sticky)] border-b border-hairline bg-paper/90 pt-safe backdrop-blur-sm">
+      <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-x-2 gap-y-1.5 px-page py-2 sm:h-14 sm:flex-nowrap sm:gap-x-3 sm:py-0">
         <Link
           href="/library"
           aria-label={COPY.backToLibrary}
-          className="shrink-0 font-display text-lg leading-none tracking-tight text-ink transition-opacity duration-150 hover:opacity-70"
+          translate="no"
+          className="shrink-0 font-display text-lg leading-none tracking-tight text-ink transition-opacity duration-150 ease-[var(--ease-enter)] hover:opacity-70"
           style={{ fontVariationSettings: '"SOFT" 40, "WONK" 1' }}
         >
           {BRAND_NAME}
@@ -57,9 +58,7 @@ export function EditorTopBar({
           <button
             type="button"
             onClick={onExport}
-            // Full width on its own line below sm — the row's other controls
-            // are icons and short ghosts, this is the one thing to hit.
-            className="h-9 w-full rounded-md bg-accent px-4 text-sm text-on-accent transition-[opacity,transform] duration-150 hover:opacity-90 active:scale-[0.98] sm:ml-1 sm:w-auto"
+            className="btn btn-primary w-full sm:ml-1 sm:w-auto"
           >
             {COPY.export}
           </button>
@@ -105,7 +104,7 @@ function TitleField({
           input.current?.blur();
         }
       }}
-      className="min-w-0 flex-1 rounded-md bg-transparent px-1.5 py-1 text-base text-ink transition-colors duration-150 hover:bg-field focus:bg-field sm:max-w-[28rem]"
+      className="min-w-0 flex-1 rounded-md bg-transparent px-1.5 py-1 text-base text-ink transition-colors duration-150 ease-[var(--ease-enter)] hover:bg-field focus:bg-field sm:max-w-[28rem]"
     />
   );
 }
@@ -139,7 +138,7 @@ function SaveIndicator({
           <button
             type="button"
             onClick={onRetrySave}
-            className="rounded-sm underline underline-offset-2 transition-colors duration-150 hover:text-ink"
+            className="rounded-sm underline underline-offset-2 transition-colors duration-150 ease-[var(--ease-enter)] hover:text-ink"
           >
             {COPY.retry}
           </button>

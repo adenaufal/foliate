@@ -97,7 +97,7 @@ export function Popover({
         popover="auto"
         role="dialog"
         aria-label={label}
-        className={`fixed inset-auto m-0 max-h-[80dvh] overflow-auto rounded-xl border border-hairline bg-paper p-0 text-ink shadow-page transition-[opacity,transform] duration-150 starting:-translate-y-1 starting:opacity-0 ${panelClassName}`}
+        className={`fixed inset-auto m-0 max-h-[min(80dvh,calc(100dvh-var(--safe-top)-var(--safe-bottom)-1rem))] overflow-auto overscroll-contain rounded-xl border border-hairline bg-paper p-0 text-ink shadow-page transition-[opacity,transform] duration-150 ease-[var(--ease-enter)] starting:-translate-y-1 starting:opacity-0 ${panelClassName}`}
       >
         {children({ open, close: () => panel.current?.hidePopover() })}
       </div>
@@ -107,4 +107,4 @@ export function Popover({
 
 /** The bar's ghost control. Shared so the two triggers cannot drift apart. */
 export const GHOST_CONTROL =
-  "flex h-9 shrink-0 items-center gap-1 rounded-md px-2.5 text-sm text-muted transition-[color,background-color,transform] duration-150 hover:bg-field hover:text-ink active:scale-[0.98]";
+  "tap flex h-9 shrink-0 items-center gap-1 rounded-md px-2.5 text-sm text-muted transition-[color,background-color,scale] duration-150 ease-[var(--ease-enter)] hover:bg-field hover:text-ink active:scale-[0.96]";

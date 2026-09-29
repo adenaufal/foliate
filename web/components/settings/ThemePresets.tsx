@@ -197,8 +197,8 @@ export function ThemePresets({
           {COPY.customHelp}
         </p>
 
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-hairline px-3 py-1.5 text-sm text-ink transition-[border-color,transform] duration-150 hover:border-muted active:scale-[0.98] has-[:focus-visible]:border-accent">
-          <UploadSimpleIcon size={15} weight="regular" className="text-muted" />
+        <label className="btn btn-ghost cursor-pointer gap-2 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent">
+          <UploadSimpleIcon size={15} weight="regular" className="text-muted" aria-hidden />
           {busy ? COPY.uploading : COPY.upload}
           <input
             ref={fileInput}
@@ -336,7 +336,7 @@ function SpecimenRow({
       : `${face.family} · ${face.trait}`;
 
   return (
-    <label className="group block cursor-pointer rounded-lg border border-hairline bg-paper px-3 py-2.5 transition-[border-color,box-shadow] duration-150 hover:border-muted has-[:checked]:border-accent has-[:checked]:ring-[1.5px] has-[:checked]:ring-accent has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent">
+    <label className="group block cursor-pointer rounded-lg border border-hairline bg-paper px-3 py-2.5 transition-[border-color,box-shadow] duration-150 ease-[var(--ease-enter)] hover:border-muted has-[:checked]:border-accent has-[:checked]:ring-[1.5px] has-[:checked]:ring-accent has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent">
       <input
         type="radio"
         name={group}

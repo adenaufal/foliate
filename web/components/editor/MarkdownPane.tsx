@@ -35,7 +35,7 @@ const MAX_IMPORT_BYTES = 2 * 1024 * 1024;
 /** ~65ch of the mono face at --text-base, plus its gutters. Shared by the
  *  textarea and the empty-state overlay so the prompt sits on the caret line. */
 const MEASURE = "mx-auto w-full max-w-[41rem]";
-const GUTTER = "px-4 sm:px-6";
+const GUTTER = "px-page";
 
 export function MarkdownPane({ value, onChange, onImportFile, onLoadSample }: MarkdownPaneProps) {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -121,7 +121,7 @@ export function MarkdownPane({ value, onChange, onImportFile, onLoadSample }: Ma
           an overlay so the 2px never reflows the text. */}
       <div
         aria-hidden
-        className={`pointer-events-none absolute inset-0 border-2 transition-colors duration-150 ${
+        className={`pointer-events-none absolute inset-0 border-2 transition-colors duration-150 ease-[var(--ease-enter)] ${
           dragging ? "border-accent" : "border-transparent"
         }`}
       />
@@ -149,7 +149,7 @@ function GhostText({ onClick, children }: { onClick: () => void; children: strin
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-11 items-center rounded-md px-2 text-sm text-muted underline-offset-4 transition-[color,transform] duration-150 hover:text-ink hover:underline active:scale-[0.98]"
+      className="inline-flex h-11 items-center rounded-md px-2 text-sm text-muted underline-offset-4 transition-[color,scale] duration-150 ease-[var(--ease-enter)] hover:text-ink hover:underline active:scale-[0.96]"
     >
       {children}
     </button>

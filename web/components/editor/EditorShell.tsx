@@ -44,7 +44,7 @@ export function EditorShell({ projectId }: { projectId: string }) {
     // Definite height, not just a floor: with `min-h` the 1fr row grows to the
     // height of the page stack, the document itself scrolls, and the top bar
     // and page pill ride away with it. dvh, so mobile browser chrome is out.
-    <div className="grid h-[100dvh] grid-rows-[auto_auto_minmax(0,1fr)] bg-paper">
+    <div className="grid h-dvh grid-rows-[auto_auto_minmax(0,1fr)] bg-paper">
       {/* The route's heading. Visible as the inline-editable input in the bar,
           so it is hidden here and not a grid row (sr-only is absolute). */}
       <h1 className="sr-only">{heading}</h1>
@@ -78,7 +78,7 @@ export function EditorShell({ projectId }: { projectId: string }) {
           row-start-3 is load-bearing: the pane toggle above is display:none at
           ≥1100px, which stops it being a grid item, and auto-placement would
           otherwise drop this into the auto row and leave the 1fr row empty. */}
-      <main className="row-start-3 grid min-h-0 grid-cols-1 split:grid-cols-[minmax(380px,40fr)_60fr]">
+      <main id="main" className="row-start-3 grid min-h-0 grid-cols-1 split:grid-cols-[minmax(380px,40fr)_60fr]">
         <div
           className={`min-h-0 min-w-0 split:block split:border-r split:border-hairline ${
             pane === "teks" ? "" : "hidden"
@@ -96,7 +96,7 @@ export function EditorShell({ projectId }: { projectId: string }) {
             {session.compile.kind === "failed" && (
               <p
                 role="alert"
-                className="flex items-start gap-2 border-t border-hairline px-4 py-3 text-sm leading-relaxed text-accent-ink sm:px-6"
+                className="flex items-start gap-2 border-t border-hairline px-page py-3 text-sm leading-relaxed text-accent-ink"
               >
                 <WarningCircleIcon size={16} weight="regular" className="mt-0.5 shrink-0" aria-hidden />
                 {inlineError(session.compile.error)}
@@ -133,16 +133,16 @@ type Pane = "teks" | "halaman";
 // both panes are visible at once.
 function PaneToggle({ value, onChange }: { value: Pane; onChange: (p: Pane) => void }) {
   return (
-    <div className="border-b border-hairline px-4 py-2 split:hidden">
-      <div role="group" aria-label="Panel" className="inline-grid grid-cols-2 rounded-md border border-hairline p-0.5">
+    <div className="border-b border-hairline px-page py-2 split:hidden">
+      <div role="group" aria-label="Panel" className="grid w-full grid-cols-2 rounded-md border border-hairline p-0.5 sm:inline-grid sm:w-auto">
         {(["teks", "halaman"] as const).map((p) => (
           <button
             key={p}
             type="button"
             aria-pressed={value === p}
             onClick={() => onChange(p)}
-            className={`rounded-sm px-5 py-1 text-sm transition-[color,background-color] duration-150 active:scale-[0.98] ${
-              value === p ? "bg-field text-ink" : "text-muted"
+            className={`tap rounded-[calc(var(--radius-md)-2px)] px-5 py-1.5 text-sm transition-[color,background-color,scale] duration-150 ease-[var(--ease-enter)] active:scale-[0.96] ${
+              value === p ? "bg-field text-ink" : "text-muted hover:text-ink"
             }`}
           >
             {p === "teks" ? "Teks" : "Halaman"}
@@ -155,7 +155,7 @@ function PaneToggle({ value, onChange }: { value: Pane; onChange: (p: Pane) => v
 
 function NotFound() {
   return (
-    <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6">
+    <main id="main" className="mx-auto max-w-[1400px] px-page py-10">
       <p className="text-base">{COPY.loadFailed}</p>
       <p className="mt-1 text-sm text-muted">Proyek ini sudah dihapus atau tautannya salah.</p>
       <Link
@@ -164,6 +164,6 @@ function NotFound() {
       >
         {COPY.backToLibrary}
       </Link>
-    </div>
+    </main>
   );
 }

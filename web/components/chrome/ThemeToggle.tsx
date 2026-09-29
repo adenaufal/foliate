@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { MoonIcon } from "@phosphor-icons/react/dist/csr/Moon";
 import { SunIcon } from "@phosphor-icons/react/dist/csr/Sun";
 import { COPY } from "@/lib/brand";
-import { THEME_KEY, type Theme } from "@/lib/theme";
+import { suppressThemeTransitions, THEME_KEY, type Theme } from "@/lib/theme";
 
 export function ThemeToggle() {
   // Starts null so the first client render matches the server HTML; the real
@@ -18,6 +18,7 @@ export function ThemeToggle() {
 
   function toggle() {
     const next: Theme = document.documentElement.classList.contains("dark") ? "light" : "dark";
+    suppressThemeTransitions();
     document.documentElement.classList.toggle("dark", next === "dark");
     try {
       localStorage.setItem(THEME_KEY, next);
@@ -35,12 +36,12 @@ export function ThemeToggle() {
       onClick={toggle}
       title={label}
       aria-label={label}
-      className="grid size-9 place-items-center rounded-md text-muted transition-[color,transform] duration-150 hover:text-ink active:scale-[0.96]"
+      className="btn-icon"
     >
       {/* Both are rendered; CSS picks one, so there is no hydration mismatch
           and no flash while `theme` resolves. */}
-      <SunIcon size={17} weight="regular" className="col-start-1 row-start-1 dark:hidden" />
-      <MoonIcon size={17} weight="regular" className="col-start-1 row-start-1 hidden dark:block" />
+      <SunIcon size={17} weight="regular" className="col-start-1 row-start-1 dark:hidden" aria-hidden />
+      <MoonIcon size={17} weight="regular" className="col-start-1 row-start-1 hidden dark:block" aria-hidden />
     </button>
   );
 }

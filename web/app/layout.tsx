@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#fbfaf6" },
     { media: "(prefers-color-scheme: dark)", color: "#16140f" },
@@ -35,6 +36,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className={`${geist.variable} ${geistMono.variable} ${fraunces.variable}`}>
+        <a href="#main" className="skip-link">
+          Langsung ke isi
+        </a>
         {children}
       </body>
     </html>
