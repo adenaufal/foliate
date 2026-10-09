@@ -16,8 +16,15 @@ npm run build
 | `lib/storage.ts` | `StorageDriver` interface, IndexedDB `localDriver`, `supabaseDriver` stub. |
 | `lib/compile.ts` | Typed compile-service client + trim geometry. |
 | `app/api/compile/route.ts` | Proxy to `COMPILE_SERVICE_URL`. The browser never hits :8723. |
-| `components/chrome/AppShell.tsx` | Top bar with `title` / `actions` slots. |
-| `components/editor/EditorShell.tsx` | Split layout + autosave. `EditorPane` and `PreviewPane` at the bottom are seams — replace their bodies. |
+| `lib/outline.ts` | Headings and prose word counts read off the Markdown. Pure; `selfCheckOutline()`. |
+| `lib/templates.ts` | Template catalogue + per-trim page geometry mirrored from the `.typ` files. Pure; `selfCheckTemplates()`. |
+| `components/chrome/AppShell.tsx` | Top bar for library and settings. |
+| `components/chrome/EditorTopBar.tsx` | The editor's bar: view switch, panel toggles, Ekspor. |
+| `components/chrome/CommandPalette.tsx` | ⌘K. Takes a flat `Command[]`; the shell builds the list. |
+| `components/editor/EditorShell.tsx` | Columns, drawers, view switch, palette commands, outline↔PDF page mapping. |
+| `components/editor/OutlinePanel.tsx` | Chapter list with page numbers, stats footer. |
+| `components/editor/InspectorPanel.tsx` | Template, trim, body face, page specification. |
+| `components/preview/PdfStack.tsx` | Page stack or spreads; reads the PDF outline. |
 
 ## Tailwind v4 notes
 

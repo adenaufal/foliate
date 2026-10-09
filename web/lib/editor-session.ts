@@ -10,7 +10,7 @@
 //   node .session-check.mjs
 //   import("@/lib/editor-session").then(m => console.log(m.selfCheckSession()))
 
-import { useCallback, useEffect, useReducer, useRef, type ReactNode } from "react";
+import { useCallback, useEffect, useReducer, useRef, type Ref } from "react";
 import { COPY } from "./brand";
 import {
   compile,
@@ -130,6 +130,12 @@ export interface EditorSession extends SessionDoc {
 // (`h-full`) and owns its own scroll and background; the shell owns the split,
 // the divider, and the collapse.
 
+export interface MarkdownPaneHandle {
+  /** Puts the caret at the start of a 1-based line and scrolls it into view —
+   *  the outline's jump. */
+  focusLine: (line: number) => void;
+}
+
 export interface MarkdownPaneProps {
   /** Controlled — a file drop replaces the whole document. */
   value: string;
@@ -144,6 +150,25 @@ export interface MarkdownPaneProps {
   onImportFile: (file: File) => Promise<string | null>;
   /** Empty-state ghost action: loads the sample manuscript. */
   onLoadSample: () => void;
+  /** The 1-based line the caret is on, whenever that changes. Drives the
+   *  active chapter in the outline and the `baris N` readout. */
+  onCaretLine?: (line: number) => void;
+  ref?: Ref<MarkdownPaneHandle>;
+}
+
+/** One page under the other, or facing pages as the book will be bound. */
+export type PreviewLayout = "stack" | "spread";
+
+/** A bookmark of the compiled PDF, resolved to its 1-based physical page. */
+export interface PdfOutlineEntry {
+  title: string;
+  page: number;
+  /** 1 = chapter, 2 = section. */
+  level: number;
+}
+
+export interface PagePreviewHandle {
+  scrollToPage: (page: number) => void;
 }
 
 export interface PagePreviewProps {
@@ -157,22 +182,34 @@ export interface PagePreviewProps {
   trim: Trim;
   /** pdf.js is the only thing that knows the count; report it up. */
   onPageCount: (pages: number) => void;
+  /** Defaults to `stack`. The toggle only renders when `onLayoutChange` is given. */
+  layout?: PreviewLayout;
+  onLayoutChange?: (layout: PreviewLayout) => void;
+  /** The PDF's own bookmarks, once a document lands — how the outline panel
+   *  learns which page each chapter starts on. */
+  onOutline?: (entries: PdfOutlineEntry[]) => void;
+  ref?: Ref<PagePreviewHandle>;
 }
+
+/** Which panes the editor shows. `keduanya` only exists at the split
+ *  breakpoint and above; below it the shell reads it as `teks`. */
+export type EditorView = "teks" | "keduanya" | "halaman";
 
 export interface EditorTopBarProps {
   title: string;
   onTitleChange: (title: string) => void;
   save: SaveState;
   onRetrySave: () => void;
-  template: TemplateId;
-  onTemplateChange: (template: TemplateId) => void;
-  trim: Trim;
-  onTrimChange: (trim: Trim) => void;
+  view: EditorView;
+  onViewChange: (view: EditorView) => void;
+  /** Outline and inspector: columns at the wide breakpoint, drawers below it.
+   *  `open` reflects whichever the viewport is showing. */
+  outlineOpen: boolean;
+  onToggleOutline: () => void;
+  inspectorOpen: boolean;
+  onToggleInspector: () => void;
   /** Opens the export sheet. The bar's one filled button. */
   onExport: () => void;
-  /** Per-template theme rows — render inside the template popover, under the
-   *  three cards. Already bound; the bar only places it. */
-  themePresets?: ReactNode;
 }
 
 export interface ExportDialogProps {

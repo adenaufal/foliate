@@ -24,12 +24,42 @@ export const TRIM_SIZES: Record<TrimPreset, { label: string; w: number; h: numbe
  *  outline and the compile skeleton, both of which must be trim-sized before
  *  any PDF exists (HANDOFF §6.6). */
 export function trimAspect(trim: Trim): number {
+  const { w, h } = trimInches(trim);
+  return w / h;
+}
+
+/** Physical size in inches, whatever unit the trim was given in. */
+export function trimInches(trim: Trim): { w: number; h: number } {
   if (typeof trim === "string") {
     const t = TRIM_SIZES[trim] ?? TRIM_SIZES[DEFAULT_TRIM];
-    return t.w / t.h;
+    return { w: t.w, h: t.h };
   }
   const k = trim.unit === "mm" ? 1 / 25.4 : trim.unit === "cm" ? 1 / 2.54 : 1;
-  return (trim.width * k) / (trim.height * k);
+  return { w: trim.width * k, h: trim.height * k };
+}
+
+/** The presets are trims first and names second; the name is what a writer
+ *  recognises, the dimensions are what they verify. */
+export const TRIM_PRESET_NAMES: Record<TrimPreset, string> = {
+  "5x8": "Novel",
+  "6x9": "Trade",
+  a5: "A5",
+};
+
+/** Two decimals at most; A5 in inches is otherwise 5.826771653543307. */
+export const roundTrim = (v: number) => String(Math.round(v * 100) / 100);
+
+/** "5 × 8 in" for a preset, "5,5 × 8,5 in" for a custom one — decimal comma. */
+export function trimLabel(trim: Trim): string {
+  if (typeof trim === "string") return TRIM_SIZES[trim]?.label ?? trim;
+  return `${roundTrim(trim.width).replace(".", ",")} × ${roundTrim(trim.height).replace(".", ",")} ${trim.unit ?? "in"}`;
+}
+
+/** "Novel · 5 × 8 in" for a preset; a custom trim is just its dimensions. */
+export function trimTitle(trim: Trim): string {
+  return typeof trim === "string" && TRIM_PRESET_NAMES[trim]
+    ? `${TRIM_PRESET_NAMES[trim]} · ${trimLabel(trim)}`
+    : trimLabel(trim);
 }
 
 export interface CompileMetadata {

@@ -112,6 +112,8 @@
 
   /* split view collapses below this; see app/project/[id] */
   --breakpoint-split: 1100px;
+  /* the outline and inspector become columns at this width; drawers below it */
+  --breakpoint-wide: 1200px;
 }
 
 @layer base {
@@ -261,6 +263,41 @@
   .page-edge {
     outline: 1px solid var(--page-edge);
     outline-offset: -1px;
+  }
+
+  /* A facing pair: the gutter shadow on each page's inner edge. One gradient,
+     drawn over the page, so the canvas underneath needs no change. */
+  .spine-verso::after,
+  .spine-recto::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 7%;
+    pointer-events: none;
+  }
+  .spine-verso::after {
+    right: 0;
+    background: linear-gradient(to left, rgb(66 58 42 / 0.14), rgb(66 58 42 / 0));
+  }
+  .spine-recto::after {
+    left: 0;
+    background: linear-gradient(to right, rgb(66 58 42 / 0.14), rgb(66 58 42 / 0));
+  }
+
+  /* A key cap, as in the command palette's hints and the ⌘K affordance. */
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    height: 1.25rem;
+    padding-inline: 0.3rem;
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-sm);
+    background: var(--paper);
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: var(--text-2xs);
+    line-height: 1;
+    color: var(--muted);
   }
 
   .btn {

@@ -19,6 +19,11 @@ export interface Project {
   /** Faces uploaded for this project, base64. Capped where they are added
    *  (lib/editor-session `withFont`) — the whole record is rewritten on save. */
   fonts?: UploadedFont[];
+  /** Card art for the library: page 1 of the last successful compile as a
+   *  webp data URL. A cache, written without touching `updatedAt`. */
+  thumbnail?: string;
+  /** Pages in the last successful compile. Same cache write as `thumbnail`. */
+  pageCount?: number;
   createdAt: number;
   updatedAt: number;
 }

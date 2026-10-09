@@ -1,25 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { COPY } from "@/lib/brand";
 import { DEFAULT_TRIM, trimAspect } from "@/lib/compile";
-import { storage } from "@/lib/storage";
+import { formatInt } from "@/lib/outline";
+import { storage, type Project, type ProjectPatch } from "@/lib/storage";
 import { ProjectCard } from "./ProjectCard";
-import { createProject, updateProject, type LibraryProject } from "./thumbnail";
 
 const GRID = "grid grid-cols-1 min-[420px]:grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-5 lg:grid-cols-4 xl:grid-cols-5";
+
+type Sort = "terbaru" | "judul";
 
 type State =
   | { status: "loading" }
   | { status: "error"; message: string }
-  | { status: "ready"; projects: LibraryProject[] };
+  | { status: "ready"; projects: Project[] };
 
 export function ProjectLibrary() {
   const router = useRouter();
   const [state, setState] = useState<State>({ status: "loading" });
+  const [sort, setSort] = useState<Sort>("terbaru");
   const [notice, setNotice] = useState<string | null>(null);
-  const [doomed, setDoomed] = useState<LibraryProject | null>(null);
+  const [doomed, setDoomed] = useState<Project | null>(null);
   const [pending, startTransition] = useTransition();
   const confirmRef = useRef<HTMLDialogElement>(null);
 
@@ -39,16 +42,28 @@ export function ProjectLibrary() {
     if (!doomed && d.open) d.close();
   }, [doomed]);
 
-  const projects = state.status === "ready" ? state.projects : [];
+  const projects = useMemo(() => (state.status === "ready" ? state.projects : []), [state]);
 
-  function setProjects(next: LibraryProject[]) {
+  // The driver lists newest first; `Judul` is the one other order a shelf has.
+  const shown = useMemo(
+    () => (sort === "judul" ? [...projects].sort((a, b) => a.title.localeCompare(b.title, "id")) : projects),
+    [projects, sort],
+  );
+  // Tagged `Lanjutkan` whatever the order: the manuscript last touched.
+  const latestId = projects.reduce<Project | null>(
+    (best, p) => (!best || p.updatedAt > best.updatedAt ? p : best),
+    null,
+  )?.id;
+  const totalPages = projects.reduce((n, p) => n + (p.pageCount ?? 0), 0);
+
+  function setProjects(next: Project[]) {
     setState({ status: "ready", projects: next });
   }
 
-  function openNew(seed?: { title: string; markdown: string }) {
+  function openNew(seed?: ProjectPatch) {
     startTransition(async () => {
       try {
-        const p = await createProject(seed ?? {});
+        const p = await storage.create(seed ?? {});
         router.push(`/project/${p.id}`);
       } catch (e) {
         setNotice(message(e));
@@ -62,7 +77,7 @@ export function ProjectLibrary() {
         const res = await fetch("/samples/manuscript.md");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const markdown = await res.text();
-        const p = await createProject({ title: frontMatterTitle(markdown), markdown });
+        const p = await storage.create({ title: frontMatterTitle(markdown), markdown });
         router.push(`/project/${p.id}`);
       } catch (e) {
         setNotice(message(e));
@@ -70,27 +85,30 @@ export function ProjectLibrary() {
     });
   }
 
-  async function rename(p: LibraryProject, title: string) {
+  async function rename(p: Project, title: string) {
     setNotice(null);
     // Replaced in place, not re-sorted: a rename should not make the card jump.
     setProjects(projects.map((x) => (x.id === p.id ? { ...x, title } : x)));
     try {
-      await updateProject(p.id, { title });
+      await storage.update(p.id, { title });
     } catch (e) {
       setProjects(projects);
       setNotice(message(e));
     }
   }
 
-  async function duplicate(p: LibraryProject) {
+  async function duplicate(p: Project) {
     setNotice(null);
     try {
-      const copy = await createProject({
+      const copy = await storage.create({
         title: `${p.title} (salinan)`,
         markdown: p.markdown,
         template: p.template,
         trim: p.trim,
+        bodyFont: p.bodyFont,
+        fonts: p.fonts,
         thumbnail: p.thumbnail,
+        pageCount: p.pageCount,
       });
       setProjects([copy, ...projects]);
     } catch (e) {
@@ -98,7 +116,7 @@ export function ProjectLibrary() {
     }
   }
 
-  async function destroy(p: LibraryProject) {
+  async function destroy(p: Project) {
     setNotice(null);
     setDoomed(null);
     setProjects(projects.filter((x) => x.id !== p.id));
@@ -112,12 +130,22 @@ export function ProjectLibrary() {
 
   return (
     <div className="mx-auto max-w-[1400px] px-page py-10 sm:py-12">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl tracking-tight">{COPY.libraryTitle}</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h1 className="text-2xl tracking-tight">{COPY.libraryTitle}</h1>
+          {projects.length > 0 && (
+            <p className="font-mono text-xs tabular-nums text-muted">
+              {projects.length} naskah{totalPages > 0 ? ` · ${formatInt(totalPages)} halaman` : ""}
+            </p>
+          )}
+        </div>
         {projects.length > 0 && (
-          <PrimaryButton onClick={() => openNew()} disabled={pending}>
-            {COPY.newProject}
-          </PrimaryButton>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <SortSwitch value={sort} onChange={setSort} />
+            <PrimaryButton onClick={() => openNew()} disabled={pending}>
+              {COPY.newProject}
+            </PrimaryButton>
+          </div>
         )}
       </div>
 
@@ -164,10 +192,11 @@ export function ProjectLibrary() {
         // The one surface where uniform cards are allowed — each card is a
         // distinct page render, not a repeated container.
         <ul className={`mt-8 ${GRID}`}>
-          {projects.map((p) => (
+          {shown.map((p) => (
             <ProjectCard
               key={p.id}
               project={p}
+              latest={p.id === latestId}
               onRename={(title) => rename(p, title)}
               onDuplicate={() => duplicate(p)}
               onDelete={() => setDoomed(p)}
@@ -203,7 +232,7 @@ export function ProjectLibrary() {
 
 async function load(): Promise<State> {
   try {
-    return { status: "ready", projects: (await storage.list()) as LibraryProject[] };
+    return { status: "ready", projects: await storage.list() };
   } catch (e) {
     return { status: "error", message: message(e) };
   }
@@ -215,6 +244,28 @@ const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 function frontMatterTitle(markdown: string): string {
   const m = /^---\r?\n[\s\S]*?^title:\s*(.+?)\s*$/m.exec(markdown);
   return m ? m[1].replace(/^["']|["']$/g, "") : COPY.untitled;
+}
+
+/** Two orders, so a segmented control — the same idiom as the editor's view
+ *  switch. */
+function SortSwitch({ value, onChange }: { value: Sort; onChange: (sort: Sort) => void }) {
+  return (
+    <div role="group" aria-label="Urutan" className="grid grid-cols-2 rounded-md border border-hairline p-0.5">
+      {(["terbaru", "judul"] as const).map((s) => (
+        <button
+          key={s}
+          type="button"
+          aria-pressed={value === s}
+          onClick={() => onChange(s)}
+          className={`tap rounded-[calc(var(--radius-md)-2px)] px-3 py-1.5 text-sm transition-[color,background-color,scale] duration-150 ease-[var(--ease-enter)] active:scale-[0.96] ${
+            value === s ? "bg-field text-ink" : "text-muted hover:text-ink"
+          }`}
+        >
+          {s === "terbaru" ? "Terbaru" : "Judul"}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 /** Page-shaped skeletons at the default trim — the page is the unit of loading

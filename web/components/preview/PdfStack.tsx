@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
-import { openPdf } from "./pdf";
+import type { PdfOutlineEntry, PreviewLayout } from "@/lib/editor-session";
+import { openPdf, readOutline } from "./pdf";
 import { PdfPage } from "./PdfPage";
 import { Sheet } from "./Sheet";
 
@@ -16,16 +17,30 @@ const RESIZE_SETTLE_MS = 150;
 const NONE: ReadonlySet<number> = new Set();
 
 /**
- * The compiled PDF as a continuous page stack. Emits sheets only — the scroll
- * container and the field belong to PagePreview, which needs them for the
- * empty and skeleton states too.
+ * Facing pages as the book is bound: page 1 is a recto and sits alone on the
+ * right, then (2,3), (4,5)… A final even page is a verso with nothing facing it.
+ */
+export function spreadRows(pages: number): number[][] {
+  const rows: number[][] = [];
+  if (pages >= 1) rows.push([1]);
+  for (let p = 2; p <= pages; p += 2) rows.push(p + 1 <= pages ? [p, p + 1] : [p]);
+  return rows;
+}
+
+/**
+ * The compiled PDF as a continuous page stack, or as a stack of spreads.
+ * Emits sheets (or rows of sheets) only — the scroll container and the field
+ * belong to PagePreview, which needs them for the empty and skeleton states
+ * too.
  */
 export function PdfStack({
   url,
   root,
   trimAspect,
+  layout = "stack",
   onPages,
   onFirstPage,
+  onOutline,
 }: {
   url: string;
   /** Scroll container; the IntersectionObserver root. Null on first paint. */
@@ -34,10 +49,13 @@ export function PdfStack({
    *  own — the stack must resize the instant the trim changes, ahead of the
    *  recompile landing. */
   trimAspect: number;
+  layout?: PreviewLayout;
   onPages: (pages: number) => void;
   /** Page 1 of a freshly compiled document, once painted — card art for the
    *  library. Fired once per compile, never on scroll or resize. */
   onFirstPage: (canvas: HTMLCanvasElement) => void;
+  /** The document's bookmarks, page-resolved, once per compile. */
+  onOutline?: (entries: PdfOutlineEntry[]) => void;
 }) {
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
   const [aspect, setAspect] = useState(trimAspect);
@@ -47,6 +65,9 @@ export function PdfStack({
   /** Armed by a document commit, spent by the first page that paints it. A
    *  re-render of the same page — scrolled back, or resized — finds it spent. */
   const fresh = useRef(false);
+  // Read through a ref so a new callback identity does not reload the document.
+  const outlineCb = useRef(onOutline);
+  outlineCb.current = onOutline;
 
   // Trim changed: resize now, correct later from the document itself.
   useEffect(() => setAspect(trimAspect), [trimAspect]);
@@ -76,6 +97,15 @@ export function PdfStack({
       // Only now is the old one unreachable. pdf.js 6 hangs teardown off the
       // loading task, not the document.
       void previous?.loadingTask.destroy();
+
+      // Bookmarks are cheap to read and nobody is waiting on them; a document
+      // replaced before they arrive simply does not report.
+      if (outlineCb.current) {
+        readOutline(next).then(
+          (entries) => docRef.current === next && outlineCb.current?.(entries),
+          () => {},
+        );
+      }
     })().catch(() => {
       // A corrupt or half-written blob. The pane keeps whatever it was already
       // showing; the compile error itself is the editor pane's to report.
@@ -98,7 +128,8 @@ export function PdfStack({
   );
 
   // Lazy window. One observer for the whole stack; sheets are found in the DOM
-  // rather than through refs, which keeps the page list a plain map.
+  // rather than through refs, which keeps the page list a plain map. A layout
+  // switch remounts every sheet, so it re-observes too.
   useEffect(() => {
     const pages = doc?.numPages ?? 0;
     if (!root || !pages) return;
@@ -117,7 +148,7 @@ export function PdfStack({
     );
     for (const el of root.querySelectorAll<HTMLElement>("[data-page]")) io.observe(el);
     return () => io.disconnect();
-  }, [root, doc]);
+  }, [root, doc, layout]);
 
   // Pane width drives the render scale. ResizeObserver, not a window listener:
   // the Teks/Halaman toggle resizes this pane without resizing the window.
@@ -152,19 +183,32 @@ export function PdfStack({
   // the outgoing one until the incoming is ready.
   if (!doc) return <Sheet aspect={aspect} variant="skeleton" />;
 
-  return (
-    <>
-      {Array.from({ length: doc.numPages }, (_, i) => (
-        <Sheet key={i} aspect={aspect} page={i + 1}>
-          <PdfPage
-            doc={doc}
-            index={i}
-            visible={visible.has(i)}
-            sizeTick={sizeTick}
-            onRendered={i === 0 ? onPageOneRendered : undefined}
-          />
-        </Sheet>
-      ))}
-    </>
+  const page = (i: number, size: "full" | "half", side?: "verso" | "recto") => (
+    <Sheet key={i} aspect={aspect} page={i + 1} size={size} side={side}>
+      <PdfPage
+        doc={doc}
+        index={i}
+        visible={visible.has(i)}
+        sizeTick={sizeTick}
+        onRendered={i === 0 ? onPageOneRendered : undefined}
+      />
+    </Sheet>
   );
+
+  if (layout === "spread") {
+    return (
+      <>
+        {spreadRows(doc.numPages).map((pages, r) => (
+          // The blank half keeps a lone page on its own side of the spine.
+          <div key={r} data-row className="flex w-[92%] max-w-[1240px] shrink-0 justify-center">
+            {pages.length === 1 && pages[0] % 2 === 1 && <div aria-hidden className="w-1/2 max-w-[620px]" />}
+            {pages.map((p) => page(p - 1, "half", p % 2 === 0 ? "verso" : "recto"))}
+            {pages.length === 1 && pages[0] % 2 === 0 && <div aria-hidden className="w-1/2 max-w-[620px]" />}
+          </div>
+        ))}
+      </>
+    );
+  }
+
+  return <>{Array.from({ length: doc.numPages }, (_, i) => page(i, "full"))}</>;
 }
