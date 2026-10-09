@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foliate — Arah B: Galley</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=Source+Serif+4:opsz,wght@8..60,400..600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#16140f; --panel:#1c1915; --field:#0f0d0a; --ink:#edeae2; --muted:#9a968c; --hair:#2e2a24;
+  --accent:#a83b3b; --accent-ink:#e08c86; --on:#fbfaf6;
+  --page:#fbfaf6; --page-ink:#1f1d19; --page-muted:#6b6862;
+  --shadow-page:0 1px 1px rgb(0 0 0/.5),0 12px 32px rgb(0 0 0/.55);
+  --sans:"Geist",ui-sans-serif,system-ui,sans-serif; --mono:"Geist Mono",ui-monospace,SFMono-Regular,monospace;
+  --disp:"Fraunces",serif; --book:"Spectral",serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:transparent}
+body{font-family:var(--font-sans,var(--sans));color:var(--foreground,#1a1a1a);-webkit-font-smoothing:antialiased}
+.wrap{width:100%}
+.cap{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 10px}
+.cap b{font-size:14px;font-weight:600}
+.cap span{font-size:12px;color:var(--muted-foreground,#6b6862)}
+.sec{margin-top:18px}
+
+/* ---------- scaled screen frame ---------- */
+.fit{position:relative;width:100%;overflow:hidden;border-radius:var(--radius,12px);box-shadow:0 0 0 1px rgb(255 255 255/.08),0 12px 36px rgb(0 0 0/.35)}
+.screen{transform-origin:0 0;width:1280px;height:800px;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.4;display:grid;grid-template-rows:48px 1fr;overflow:hidden}
+.screen.lib{height:600px}
+.lbl{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* ---------- top bar ---------- */
+.bar{display:flex;align-items:center;gap:10px;padding:0 14px;border-bottom:1px solid var(--hair);background:var(--paper)}
+.brand{font-family:var(--disp);font-variation-settings:"SOFT" 40,"WONK" 1;font-size:19px;letter-spacing:-.01em;color:var(--ink)}
+.crumb{color:var(--hair);font-size:16px;margin:0 2px}
+.title{font-size:14px;color:var(--ink);padding:5px 8px;border-radius:6px}
+.save{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sp{flex:1}
+.tbtn{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 10px;border-radius:7px;border:1px solid transparent;background:transparent;color:var(--muted);font:inherit;font-size:12.5px}
+.tbtn.on{background:var(--panel);border-color:var(--hair);color:var(--ink)}
+.ico{width:32px;height:32px;display:grid;place-items:center;border:0;background:transparent;color:var(--muted);border-radius:6px}
+.av{width:26px;height:26px;border-radius:50%;border:1px solid var(--hair);background:var(--panel);font-family:var(--mono);font-size:11px;color:var(--muted);display:grid;place-items:center}
+.btn{border:0;font:inherit;font-size:13px;font-weight:500;height:32px;padding:0 14px;border-radius:7px;display:inline-flex;align-items:center;gap:6px}
+.btn.pri{background:var(--accent);color:var(--on)}
+.btn.ghost{background:transparent;border:1px solid var(--hair);color:var(--ink)}
+
+/* ---------- body: drawer + stage ---------- */
+.main{display:grid;grid-template-columns:400px 1fr;min-height:0}
+.drawer{background:var(--panel);border-right:1px solid var(--hair);display:grid;grid-template-rows:auto 1fr;min-height:0}
+.dh{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--hair);font-size:12px;color:var(--muted)}
+.dh .cur{color:var(--ink)}
+.dh .r{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:11px}
+.md{padding:20px 22px;font-family:var(--mono);font-size:13px;line-height:1.8;color:var(--ink);overflow:hidden}
+.md p{margin:0 0 14px}
+.md .mk{color:var(--muted);opacity:.75}
+.md .h1{font-weight:600;font-size:15px;margin:0 0 14px}
+.md .h2{font-weight:600;margin:4px 0 14px}
+.md .q{color:var(--muted);margin:0 0 14px}
+.md em{font-style:normal;color:var(--accent-ink)}
+.md .caret{display:inline-block;width:1.5px;height:1.1em;background:var(--accent-ink);vertical-align:-2px;margin-left:1px}
+
+.stage{background:var(--field);position:relative;overflow:hidden;display:grid;grid-template-rows:1fr auto}
+.ctl{position:absolute;top:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;background:rgb(28 25 21/.92);border:1px solid var(--hair);border-radius:9px;padding:3px;backdrop-filter:blur(4px);z-index:2}
+.ctl button{border:0;background:transparent;color:var(--ink);font:inherit;font-size:12.5px;height:28px;padding:0 10px;border-radius:6px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.ctl button svg{color:var(--muted)}
+.ctl .sep{width:1px;height:16px;background:var(--hair);margin:0 2px}
+.view{position:absolute;top:14px;right:16px;display:flex;background:rgb(28 25 21/.92);border:1px solid var(--hair);border-radius:8px;padding:3px;gap:2px;z-index:2}
+.view span{width:30px;height:26px;display:grid;place-items:center;border-radius:5px;color:var(--muted)}
+.view span.on{background:var(--hair);color:var(--ink)}
+.view i{display:inline-block;border:1.5px solid currentColor;height:14px;width:9px}
+.view i+i{margin-left:1px}
+
+.spreadwrap{display:grid;place-items:center;min-height:0;padding:64px 24px 16px}
+.spread{display:flex;filter:drop-shadow(0 1px 1px rgb(0 0 0/.5)) drop-shadow(0 16px 40px rgb(0 0 0/.55))}
+.pg{width:300px;height:480px;background:var(--page);color:var(--page-ink);font-family:var(--book);position:relative;overflow:hidden}
+.pg.v{border-radius:2px 0 0 2px}
+.pg.r{border-radius:0 2px 2px 0}
+.pg.v::after{content:"";position:absolute;top:0;bottom:0;right:0;width:26px;background:linear-gradient(to left,rgb(0 0 0/.14),rgb(0 0 0/0))}
+.pg.r::after{content:"";position:absolute;top:0;bottom:0;left:0;width:26px;background:linear-gradient(to right,rgb(0 0 0/.14),rgb(0 0 0/0))}
+.pg .in{position:absolute;inset:0}
+.pg.v .in{padding:44px 32px 36px 40px}
+.pg.r .in{padding:44px 40px 36px 32px}
+.pg .rh{display:flex;justify-content:space-between;font-size:7.2px;letter-spacing:.14em;text-transform:uppercase;color:var(--page-muted);margin-bottom:11px}
+.pg .body{font-size:9.6px;line-height:13.4px;text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.pg .body p{text-indent:1.4em;margin:0}
+.pg .body p.first{text-indent:0}
+.pg .body p.first::first-letter{font-size:30px;float:left;line-height:25px;padding:2px 4px 0 0;font-weight:500}
+.pg .body .sc{text-transform:uppercase;letter-spacing:.05em;font-size:8.8px}
+.pg .opener{height:34%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;text-align:center;padding-bottom:16px}
+.pg .opener .bab{font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:var(--page-muted)}
+.pg .opener h2{font-weight:500;font-size:17px;letter-spacing:-.01em;margin-top:5px;color:#1a1a1a}
+.pg .folio{position:absolute;bottom:26px;left:0;right:0;text-align:center;font-size:7.5px;letter-spacing:.1em;color:var(--page-muted)}
+.pg .epi{position:absolute;left:40px;right:32px;top:40%;font-style:italic;font-size:10px;line-height:15px;text-align:center;color:#2a2823}
+.pg .epi small{display:block;font-style:normal;font-size:7px;letter-spacing:.16em;text-transform:uppercase;color:var(--page-muted);margin-top:10px}
+.pill{position:absolute;left:50%;bottom:108px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;color:var(--ink);background:rgb(28 25 21/.92);border:1px solid var(--hair);border-radius:7px;padding:5px 8px;backdrop-filter:blur(3px);z-index:2}
+.pill b{font-weight:400;color:var(--muted)}
+
+/* filmstrip */
+.film{display:flex;align-items:flex-end;gap:10px;padding:10px 24px 14px;border-top:1px solid var(--hair);background:rgb(22 20 15/.6);overflow:hidden}
+.fp{display:flex;flex-direction:column;align-items:center;gap:5px;flex:none}
+.fp span{font-family:var(--mono);font-size:9.5px;color:var(--muted)}
+.fp.on span{color:var(--accent-ink)}
+.th{width:34px;height:54px;background:var(--page);position:relative;border-radius:1px;box-shadow:0 1px 2px rgb(0 0 0/.5)}
+.fp.on .th{outline:1.5px solid var(--accent);outline-offset:1px}
+.th.text::before{content:"";position:absolute;inset:9px 6px 8px;background:repeating-linear-gradient(to bottom,#2a2823 0 1px,transparent 1px 3.5px);opacity:.35}
+.th.opener::before{content:"";position:absolute;inset:24px 6px 8px;background:repeating-linear-gradient(to bottom,#2a2823 0 1px,transparent 1px 3.5px);opacity:.35}
+.th.opener::after{content:"";position:absolute;top:17px;left:11px;right:11px;height:2px;background:#2a2823;opacity:.7}
+.th.titlep::before{content:"";position:absolute;top:19px;left:8px;right:8px;height:3px;background:#2a2823;opacity:.7}
+.th.titlep::after{content:"";position:absolute;top:25px;left:12px;right:12px;height:1px;background:#2a2823;opacity:.4}
+.th.small::before{content:"";position:absolute;inset:36px 7px 7px;background:repeating-linear-gradient(to bottom,#2a2823 0 1px,transparent 1px 3px);opacity:.25}
+.th.dedic::before{content:"";position:absolute;top:22px;left:11px;right:11px;height:1px;background:#2a2823;opacity:.5}
+.th.toc::before{content:"";position:absolute;inset:12px 6px 14px;background:repeating-linear-gradient(to bottom,#2a2823 0 1px,transparent 1px 5px);opacity:.35}
+.th.epi::before{content:"";position:absolute;top:22px;left:9px;right:9px;height:6px;background:repeating-linear-gradient(to bottom,#2a2823 0 1px,transparent 1px 3px);opacity:.35}
+.fp.more{align-self:center;color:var(--muted);font-family:var(--mono);font-size:11px;padding:0 2px 16px}
+
+/* ---------- 1:1 detail panels ---------- */
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:640px){.row{grid-template-columns:1fr}}
+.panel{background:var(--field);color:var(--ink);font-family:var(--sans);font-size:13px;border-radius:var(--radius,12px);padding:16px;box-shadow:0 0 0 1px rgb(255 255 255/.08),0 8px 24px rgb(0 0 0/.3);overflow:hidden;position:relative}
+.pop{background:var(--panel);border:1px solid var(--hair);border-radius:12px;box-shadow:0 12px 36px rgb(0 0 0/.5);padding:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.tcard{padding:8px;border-radius:9px;border:1px solid var(--hair)}
+.tcard.on{border-color:transparent;box-shadow:0 0 0 1.5px var(--accent)}
+.tcard>b{display:block;font-weight:500;font-size:12.5px;margin-top:8px}
+.tcard.on>b{color:var(--accent-ink)}
+.tcard span{display:block;font-family:var(--mono);font-size:9.5px;color:var(--muted);margin-top:2px;line-height:1.4}
+.pth{width:100%;aspect-ratio:5/8;background:var(--page);color:var(--page-ink);font-family:var(--book);position:relative;border-radius:1px;overflow:hidden}
+.pth .lines{position:absolute;left:14%;right:14%;bottom:12%;background:repeating-linear-gradient(to bottom,#2a2823 0 1px,transparent 1px 4px);opacity:.35}
+.pth .t{position:absolute;left:0;right:0;text-align:center}
+.pth .t small{display:block;font-size:4.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--page-muted)}
+.pth .t b{display:block;font-weight:500;font-size:9px;margin-top:2px}
+.pth.lit .t{top:30%}.pth.lit .lines{top:46%}
+.pth.man{font-family:"Source Serif 4",serif}.pth.man .t{top:22%}.pth.man .lines{top:40%}
+.pth.man .t i{display:block;width:12px;height:1px;background:#8a2e2e;margin:3px auto}
+.pth.con{font-family:"Libre Baskerville",serif}.pth.con .t{top:12%;left:14%;text-align:left}.pth.con .lines{top:44%}
+.pth.con .t em{display:block;font:300 18px var(--sans);color:#1a1a1a;opacity:.25;line-height:1}
+.pth.con .t b{font-family:var(--sans);font-size:7px}
+.ctl.inline{position:static;transform:none;display:inline-flex}
+.sheetx{width:300px;margin:0 auto;background:var(--panel);border:1px solid var(--hair);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 36px rgb(0 0 0/.5)}
+.sheetx .sh{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:500}
+.sheetx .sh .x{color:var(--muted);font-weight:400;font-size:16px}
+.fsg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--hair);border-radius:7px;padding:2px;gap:2px}
+.fsg span{text-align:center;font-size:12px;padding:5px 0;border-radius:5px;color:var(--muted)}
+.fsg span.on{background:var(--hair);color:var(--ink)}
+.frow{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;gap:8px}
+.frow .v{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap}
+.tog{width:30px;height:18px;border-radius:9px;background:var(--accent);position:relative;flex:none}
+.tog::after{content:"";position:absolute;top:2px;right:2px;width:14px;height:14px;border-radius:50%;background:#fff}
+.tog.off{background:var(--hair)}
+.tog.off::after{right:auto;left:2px;background:var(--muted)}
+.inp{border:1px solid var(--hair);border-radius:7px;padding:7px 9px;font-family:var(--mono);font-size:12px;color:var(--ink);background:var(--paper);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inp small{display:block;font-family:var(--sans);font-size:10.5px;color:var(--muted);margin-bottom:4px}
+.btn.full{width:100%;justify-content:center}
+.prog{height:2px;background:var(--hair);border-radius:2px;overflow:hidden;margin-top:-6px}
+.prog i{display:block;height:100%;width:62%;background:var(--accent)}
+.hint{font-size:11px;color:var(--muted);margin-top:-4px}
+
+/* states */
+.states{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width:640px){.states{grid-template-columns:1fr 1fr}}
+.st{background:var(--field);border-radius:10px;padding:14px;min-height:170px;position:relative;box-shadow:0 0 0 1px rgb(255 255 255/.08);font-family:var(--sans);color:var(--ink);font-size:12px;overflow:hidden}
+.st .t{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;font-weight:500}
+.sk{width:84px;aspect-ratio:5/8;margin:0 auto;background:#2a2721;position:relative;overflow:hidden;border-radius:1px}
+.sk::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgb(255 255 255/.08) 50%,transparent 70%)}
+.ol{width:84px;aspect-ratio:5/8;margin:0 auto;border:1px solid var(--hair);display:grid;place-items:center;text-align:center;font-size:9px;color:var(--muted);padding:8px}
+.err{background:var(--panel);border:1px solid var(--hair);border-radius:8px;padding:10px;font-size:11.5px;line-height:1.45;color:var(--accent-ink);display:flex;gap:7px}
+.err svg{flex:none;margin-top:1px}
+.toast{position:absolute;right:12px;bottom:12px;background:var(--panel);border:1px solid var(--hair);border-radius:8px;padding:8px 10px;font-size:11.5px;box-shadow:0 8px 24px rgb(0 0 0/.5);display:flex;gap:10px;align-items:center}
+.toast .x{color:var(--muted)}
+
+/* ---------- library (dark shelf) ---------- */
+.hero{display:grid;grid-template-columns:auto 1fr;gap:36px;align-items:center;padding:30px 48px 26px;border-bottom:1px solid var(--hair)}
+.mini{display:flex;filter:drop-shadow(0 10px 24px rgb(0 0 0/.55))}
+.mini .pg{width:120px;height:192px}
+.mini .pg.v .in{padding:18px 12px 14px 16px}
+.mini .pg.r .in{padding:18px 16px 14px 12px}
+.mini .pg .body{font-size:4px;line-height:5.6px}
+.mini .pg .opener{height:34%;padding-bottom:6px}
+.mini .pg .opener .bab{font-size:3px}
+.mini .pg .opener h2{font-size:7px;margin-top:2px}
+.mini .pg .epi{top:38%;left:16px;right:12px;font-size:4px;line-height:6px}
+.mini .pg .epi small{font-size:3px;margin-top:4px}
+.mini .pg .folio{font-size:3.5px;bottom:10px}
+.mini .pg::after{width:12px}
+.hinfo h1{font-family:var(--disp);font-variation-settings:"SOFT" 50,"WONK" 1;font-weight:400;font-size:30px;letter-spacing:-.015em;line-height:1.1;margin-top:8px}
+.hinfo .m{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:10px}
+.bar2{height:2px;background:var(--hair);border-radius:2px;margin-top:14px;width:360px;overflow:hidden}
+.bar2 i{display:block;height:100%;width:43%;background:var(--accent)}
+.hinfo .s{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:6px}
+.acts{display:flex;gap:8px;margin-top:16px}
+.shelfh{display:flex;align-items:center;gap:12px;padding:18px 48px 10px}
+.shelfh .sp{flex:1}
+.shelf{display:flex;gap:28px;padding:4px 48px 24px}
+.book{width:120px}
+.book .pg{width:120px;height:192px;border-radius:1px;box-shadow:0 1px 1px rgb(0 0 0/.5),0 8px 20px rgb(0 0 0/.5)}
+.book .pg .in{padding:16px 12px 12px 14px}
+.book .pg .body{font-size:4px;line-height:5.6px}
+.book .pg .opener{height:34%;padding-bottom:6px}
+.book .pg .opener .bab{font-size:3px}
+.book .pg .opener h2{font-size:7px;margin-top:2px}
+.book .pg.man{font-family:"Source Serif 4",serif}
+.book .pg.man .opener .rule{width:12px;height:1px;background:#8a2e2e;margin:2px auto}
+.book .pg.con{font-family:"Libre Baskerville",serif}
+.book .pg.con .opener{align-items:flex-start;text-align:left}
+.book .pg.con .opener .num{font:300 16px var(--sans);color:#1a1a1a;opacity:.25;line-height:1}
+.book .pg.con .opener h2{font-family:var(--sans);font-size:6px}
+.book b{display:block;font-weight:500;font-size:12.5px;margin-top:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.book span{display:block;font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:3px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="cap"><b>Arah B — Galley</b><span>sumbu: hierarki &amp; interaksi · buku dulu, teks sebagai laci · spread dua halaman di atas bidang gelap hangat · filmstrip halaman</span></div>
+
+  <!-- ================= EDITOR SCREEN ================= -->
+  <div class="fit"><div class="screen" data-w="1280" data-h="800">
+    <header class="bar">
+      <span class="brand">Foliate</span>
+      <span class="crumb">/</span>
+      <span class="title">Menulis di Tepi Senja</span>
+      <span class="save">Tersimpan 2 menit lalu</span>
+      <span class="sp"></span>
+      <button class="tbtn on"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg>Teks</button>
+      <button class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg></button>
+      <span class="av">R</span>
+      <button class="btn pri">Ekspor</button>
+    </header>
+
+    <div class="main">
+      <!-- drawer -->
+      <aside class="drawer">
+        <div class="dh"><span class="lbl">Teks</span><span>·</span><span class="cur">Bab 1 — Mula Kata</span><span class="r"><span class="mono">baris 18</span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg></span></div>
+        <div class="md">
+          <div class="h1"><span class="mk"># </span>Mula Kata</div>
+          <p>Setiap buku dimulai dari satu kalimat yang ditulis ketika ragu masih menggantung. Halaman ini bukan tentang bagaimana menjadi produktif, melainkan tentang bagaimana <span class="mk">*</span><em>bertahan</em><span class="mk">*</span> pada satu pekerjaan cukup lama sampai ia berubah menjadi sesuatu yang layak dibaca orang lain.</p>
+          <p>Saya menulis paragraf pertama buku ini di sebuah warung kopi di Yogyakarta, pukul lima sore, ketika langit mulai jingga dan pelayan mulai menumpuk kursi.</p>
+          <div class="q"><span class="mk">&gt; </span>Waktu yang tepat tidak pernah datang. Yang datang hanyalah waktu yang biasa.</div>
+          <div class="h2"><span class="mk">## </span>Kenapa menulis pelan</div>
+          <p>Ada anggapan bahwa menulis cepat adalah tanda bakat, dan menulis pelan adalah tanda kurangnya keyakinan. Saya pernah percaya itu<span class="caret"></span></p>
+        </div>
+      </aside>
+
+      <!-- stage -->
+      <section class="stage">
+        <div class="ctl">
+          <button>Literary<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button><i class="sep"></i>
+          <button>Novel · 5 × 8 in<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button><i class="sep"></i>
+          <button>Spectral<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
+        </div>
+        <div class="view"><span class="on"><i></i><i></i></span><span><i></i></span></div>
+
+        <div class="spreadwrap">
+          <div class="spread">
+            <div class="pg v"><div class="in">
+              <div class="epi">“Waktu yang tepat tidak pernah datang. Yang datang hanyalah waktu yang biasa, dan kita yang memutuskan apakah ia cukup.”<small>catatan harian, 2019</small></div>
+              <div class="folio">6</div>
+            </div></div>
+            <div class="pg r"><div class="in">
+              <div class="opener"><div class="bab">Bab Satu</div><h2>Mula Kata</h2></div>
+              <div class="body">
+                <p class="first"><span class="sc">Setiap buku dimulai</span> dari satu kalimat yang ditulis ketika ragu masih menggantung. Halaman ini bukan tentang bagaimana menjadi produktif, melainkan tentang bagaimana <i>bertahan</i> pada satu pekerjaan cukup lama sampai ia berubah menjadi sesuatu yang layak dibaca orang lain.</p>
+                <p>Saya menulis paragraf pertama buku ini di sebuah warung kopi di Yogyakarta, pukul lima sore, ketika langit mulai jingga dan pelayan mulai menumpuk kursi. Tidak ada yang istimewa pada sore itu. Justru karena tidak ada yang istimewa, saya merasa boleh memulai.</p>
+                <p>Ada anggapan bahwa menulis cepat adalah tanda bakat, dan menulis pelan adalah tanda kurangnya keyakinan. Saya pernah percaya itu. Lalu saya bertemu seorang penyunting tua yang membaca naskah dengan pensil di tangan, menandai satu kata per halaman, dan berkata bahwa buku yang baik ditulis dua kali: sekali dengan keberanian, sekali lagi dengan kesabaran.</p>
+              </div>
+              <div class="folio">7</div>
+            </div></div>
+          </div>
+        </div>
+        <div class="pill"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 6l-6 6 6 6"/></svg>hal. 6–7 <b>dari 128</b><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg></div>
+
+        <div class="film">
+          <div class="fp"><div class="th titlep"></div><span>1</span></div>
+          <div class="fp"><div class="th"></div><span>2</span></div>
+          <div class="fp"><div class="th small"></div><span>3</span></div>
+          <div class="fp"><div class="th dedic"></div><span>4</span></div>
+          <div class="fp"><div class="th toc"></div><span>5</span></div>
+          <div class="fp on"><div class="th epi"></div><span>6</span></div>
+          <div class="fp on"><div class="th opener"></div><span>7</span></div>
+          <div class="fp"><div class="th text"></div><span>8</span></div>
+          <div class="fp"><div class="th text"></div><span>9</span></div>
+          <div class="fp"><div class="th text"></div><span>10</span></div>
+          <div class="fp"><div class="th text"></div><span>11</span></div>
+          <div class="fp"><div class="th text"></div><span>12</span></div>
+          <div class="fp"><div class="th text"></div><span>13</span></div>
+          <div class="fp"><div class="th text"></div><span>14</span></div>
+          <div class="fp"><div class="th text"></div><span>15</span></div>
+          <div class="fp"><div class="th text"></div><span>16</span></div>
+          <div class="fp"><div class="th text"></div><span>17</span></div>
+          <div class="fp"><div class="th text"></div><span>18</span></div>
+          <div class="fp more">…</div>
+          <div class="fp"><div class="th text"></div><span>128</span></div>
+        </div>
+      </section>
+    </div>
+  </div></div>
+
+  <!-- ================= DETAILS 1:1 ================= -->
+  <div class="cap sec"><b>Detail 1:1</b><span>pil kendali di atas halaman + popover template dengan halaman pembuka asli (kiri) · lembar ekspor saat menyusun (kanan)</span></div>
+  <div class="row">
+    <div class="panel">
+      <div class="ctl inline">
+        <button>Literary<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 15l6-6 6 6"/></svg></button><i class="sep"></i>
+        <button>Novel · 5 × 8 in<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button><i class="sep"></i>
+        <button>Spectral<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></button>
+      </div>
+      <div class="pop">
+        <div class="tcard on"><div class="pth lit"><div class="t"><small>Bab Satu</small><b>Mula Kata</b></div><div class="lines" style="height:40%"></div></div><b>Literary</b><span>Spectral · 10,5/15<br>pembuka turun</span></div>
+        <div class="tcard"><div class="pth man"><div class="t"><small>Satu</small><i></i><b>Mula Kata</b></div><div class="lines" style="height:46%"></div></div><b>Manuscript</b><span>Source Serif 4 · 11/17,8<br>bab terpusat</span></div>
+        <div class="tcard"><div class="pth con"><div class="t"><em>01</em><b>Mula Kata</b></div><div class="lines" style="height:42%"></div></div><b>Contemporary</b><span>Libre Baskerville · 9,5/14,7<br>nomor bab besar</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="sheetx">
+        <div class="sh"><span>Ekspor</span><span class="x">×</span></div>
+        <div class="fsg"><span class="on">PDF</span><span>EPUB</span></div>
+        <div class="frow"><span>Ukuran</span><span class="v">5 × 8 in</span></div>
+        <div class="frow"><span>Halaman</span><span class="v">1–128</span></div>
+        <div class="frow"><span>Daftar isi</span><span class="tog"></span></div>
+        <div class="frow"><span>Tanda air draf</span><span class="tog off"></span></div>
+        <label class="inp"><small>Nama berkas</small>menulis-di-tepi-senja.pdf</label>
+        <button class="btn pri full" style="opacity:.6">Menyusun…</button>
+        <div class="prog"><i></i></div>
+        <div class="hint">128 halaman · biasanya 10–20 detik</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STATES ================= -->
+  <div class="cap sec"><b>Keadaan</b><span>memuat · kosong · gagal compile · ekspor selesai</span></div>
+  <div class="states">
+    <div class="st"><div class="t">Memuat</div><div class="sk"></div></div>
+    <div class="st"><div class="t">Kosong</div><div class="ol">Halaman akan muncul di sini.</div></div>
+    <div class="st"><div class="t">Gagal compile</div><div class="err"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><span>Gagal compile di baris 42 — tabel kompleks belum didukung.</span></div><div style="margin-top:10px;font-size:11px;color:var(--muted)">Spread tetap memperlihatkan PDF terakhir yang berhasil.</div></div>
+    <div class="st"><div class="t">Ekspor selesai</div><button class="btn pri" style="width:100%;justify-content:center">Ekspor PDF</button><div class="toast">PDF tersimpan<span class="x">×</span></div></div>
+  </div>
+
+  <!-- ================= LIBRARY ================= -->
+  <div class="cap sec"><b>Perpustakaan</b><span>rak gelap: naskah terakhir tampil sebagai spread dengan progres bab · rak di bawahnya adalah halaman pertama tiap naskah</span></div>
+  <div class="fit"><div class="screen lib" data-w="1280" data-h="600">
+    <header class="bar">
+      <span class="brand">Foliate</span>
+      <span class="sp"></span>
+      <button class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"/></svg></button>
+      <span class="av">R</span>
+    </header>
+    <div>
+      <div class="hero">
+        <div class="mini">
+          <div class="pg v"><div class="in"><div class="epi">“Waktu yang tepat tidak pernah datang. Yang datang hanyalah waktu yang biasa.”<small>catatan harian, 2019</small></div><div class="folio">6</div></div></div>
+          <div class="pg r"><div class="in"><div class="opener"><div class="bab">Bab Satu</div><h2>Mula Kata</h2></div><div class="body"><p class="first" style="text-indent:0">Setiap buku dimulai dari satu kalimat yang ditulis ketika ragu masih menggantung. Halaman ini bukan tentang bagaimana menjadi produktif, melainkan tentang bagaimana bertahan pada satu pekerjaan cukup lama sampai ia berubah menjadi sesuatu yang layak dibaca orang lain.</p><p>Saya menulis paragraf pertama buku ini di sebuah warung kopi di Yogyakarta, pukul lima sore.</p></div><div class="folio">7</div></div></div>
+        </div>
+        <div class="hinfo">
+          <div class="lbl">Lanjutkan menulis</div>
+          <h1>Menulis di Tepi Senja</h1>
+          <div class="m">Literary · Novel 5 × 8 in · 128 hal. · 38.412 kata</div>
+          <div class="bar2"><i></i></div>
+          <div class="s">Bab 3 dari 7 · Warung Kopi Pukul Lima · Diubah 2 menit lalu</div>
+          <div class="acts"><button class="btn pri">Lanjutkan</button><button class="btn ghost">Ekspor PDF</button></div>
+        </div>
+      </div>
+      <div class="shelfh"><span class="lbl">Semua naskah</span><span class="mono" style="font-size:11px;color:var(--muted)">5</span><span class="sp"></span><button class="btn ghost">Proyek baru</button></div>
+      <div class="shelf">
+        <div class="book"><div class="pg"><div class="in"><div class="opener"><div class="bab">Bab Satu</div><h2>Mula Kata</h2></div><div class="body"><p style="text-indent:0">Setiap buku dimulai dari satu kalimat yang ditulis ketika ragu masih menggantung. Halaman ini bukan tentang bagaimana menjadi produktif.</p></div></div></div><b>Menulis di Tepi Senja</b><span>2 menit lalu</span></div>
+        <div class="book"><div class="pg man"><div class="in"><div class="opener"><div class="bab">Satu</div><div class="rule"></div><h2>Rumah Tanpa Alamat</h2></div><div class="body"><p style="text-indent:0">Ibu selalu bilang rumah bukan soal alamat, melainkan soal siapa yang menunggu di dalamnya.</p></div></div></div><b>Rumah Tanpa Alamat</b><span>3 hari lalu</span></div>
+        <div class="book"><div class="pg con"><div class="in"><div class="opener"><div class="num">01</div><h2>Mulai dari yang Kecil</h2></div><div class="body" style="text-align:left"><p style="text-indent:0">Memulai adalah bagian yang paling sering dibesar-besarkan. Yang jarang dibicarakan adalah bagian setelahnya.</p></div></div></div><b>Hari Ketiga</b><span>1 minggu lalu</span></div>
+        <div class="book"><div class="pg"><div class="in"><div class="opener"><div class="bab">Bab Satu</div><h2>Peta Lama</h2></div><div class="body"><p style="text-indent:0">Peta itu sudah menguning ketika saya menemukannya di laci kakek, terlipat delapan.</p></div></div></div><b>Peta Lama</b><span>2 minggu lalu</span></div>
+        <div class="book"><div class="pg man"><div class="in"><div class="opener"><div class="bab">Satu</div><div class="rule"></div><h2>Catatan Dapur</h2></div><div class="body"><p style="text-indent:0">Resep pertama yang saya tulis bukan untuk dimasak, melainkan untuk diingat.</p></div></div></div><b>Catatan Dapur</b><span>1 bulan lalu</span></div>
+      </div>
+    </div>
+  </div></div>
+
+</div>
+<script>
+function fit(){document.querySelectorAll('.fit').forEach(function(w){var s=w.querySelector('.screen');var W=+s.dataset.w,H=+s.dataset.h;var k=w.clientWidth/W;s.style.transform='scale('+k+')';w.style.height=(H*k)+'px';});}
+window.addEventListener('resize',fit);fit();
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fit);}
+</script>
+</body>
+</html>

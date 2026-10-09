@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { MoonIcon } from "@phosphor-icons/react/dist/csr/Moon";
 import { SunIcon } from "@phosphor-icons/react/dist/csr/Sun";
 import { COPY } from "@/lib/brand";
-import { suppressThemeTransitions, THEME_KEY, type Theme } from "@/lib/theme";
+import { THEME_EVENT, toggleTheme, type Theme } from "@/lib/theme";
 
 export function ThemeToggle() {
   // Starts null so the first client render matches the server HTML; the real
@@ -13,27 +13,19 @@ export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme | null>(null);
 
   useEffect(() => {
-    setTheme(document.documentElement.classList.contains("dark") ? "dark" : "light");
+    const read = () => setTheme(document.documentElement.classList.contains("dark") ? "dark" : "light");
+    read();
+    // The command palette flips the theme too; the label follows either way.
+    window.addEventListener(THEME_EVENT, read);
+    return () => window.removeEventListener(THEME_EVENT, read);
   }, []);
-
-  function toggle() {
-    const next: Theme = document.documentElement.classList.contains("dark") ? "light" : "dark";
-    suppressThemeTransitions();
-    document.documentElement.classList.toggle("dark", next === "dark");
-    try {
-      localStorage.setItem(THEME_KEY, next);
-    } catch {
-      // private mode — the toggle still works for this session
-    }
-    setTheme(next);
-  }
 
   const label = theme === "dark" ? COPY.themeToLight : COPY.themeToDark;
 
   return (
     <button
       type="button"
-      onClick={toggle}
+      onClick={() => setTheme(toggleTheme())}
       title={label}
       aria-label={label}
       className="btn-icon"

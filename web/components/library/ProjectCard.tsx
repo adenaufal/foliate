@@ -5,12 +5,13 @@ import Link from "next/link";
 // Per-icon import: the barrel is thousands of modules (see ThemeToggle).
 import { DotsThreeIcon } from "@phosphor-icons/react/dist/csr/DotsThree";
 import { changedAgo } from "@/lib/brand";
-import { trimAspect, type TemplateId } from "@/lib/compile";
-import type { LibraryProject } from "./thumbnail";
+import { trimAspect, trimLabel, type TemplateId } from "@/lib/compile";
+import { templateInfo } from "@/lib/templates";
+import type { Project } from "@/lib/storage";
 
 /** The book face each template sets its body in — the placeholder is a stand-in
  *  for a rendered page, so serif here is book territory, not chrome. Variables
- *  are declared on the route wrapper in app/page.tsx. */
+ *  are declared on the route wrapper in app/library/page.tsx. */
 const FACES: Record<TemplateId, { font: string; label: string }> = {
   literary: { font: "var(--font-spectral), serif", label: "Spectral" },
   manuscript: { font: "var(--font-source-serif), serif", label: "Source Serif 4" },
@@ -18,13 +19,15 @@ const FACES: Record<TemplateId, { font: string; label: string }> = {
 };
 
 export interface ProjectCardProps {
-  project: LibraryProject;
+  project: Project;
+  /** The manuscript last touched wears a `Lanjutkan` tag on its page. */
+  latest?: boolean;
   onRename: (title: string) => void;
   onDuplicate: () => void;
   onDelete: () => void;
 }
 
-export function ProjectCard({ project, onRename, onDuplicate, onDelete }: ProjectCardProps) {
+export function ProjectCard({ project, latest, onRename, onDuplicate, onDelete }: ProjectCardProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [draft, setDraft] = useState<string | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -41,12 +44,21 @@ export function ProjectCard({ project, onRename, onDuplicate, onDelete }: Projec
     setDraft(project.title);
   }
 
+  // Template · trim · pages: what the book is, under what it is called.
+  const meta = [
+    templateInfo(project.template).label,
+    trimLabel(project.trim),
+    project.pageCount ? `${project.pageCount} hal.` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
     // z-10 while the menu is open so it is not clipped by the next card.
     <li className={menuOpen ? "relative z-10" : "relative"}>
       <div className="group">
         <Link href={href} aria-label={project.title} className="block rounded-sm">
-          <Sheet project={project} />
+          <Sheet project={project} latest={latest} />
         </Link>
 
         {/* Hover on pointer devices, focus-within for the keyboard, and always
@@ -131,6 +143,7 @@ export function ProjectCard({ project, onRename, onDuplicate, onDelete }: Projec
         />
       )}
 
+      <p className="mt-1 truncate font-mono text-2xs tabular-nums text-muted">{meta}</p>
       <p className="mt-0.5 text-xs tabular-nums text-muted">{changedAgo(project.updatedAt)}</p>
     </li>
   );
@@ -148,11 +161,13 @@ function MenuItem({ className = "", ...props }: React.ComponentProps<"button">) 
 
 /** The card art: the cached first page, or a typographic stand-in set in the
  *  template's own face. Never a compile (UI-REFERENCE, project library). */
-function Sheet({ project }: { project: LibraryProject }) {
+function Sheet({ project, latest }: { project: Project; latest?: boolean }) {
   const face = FACES[project.template] ?? FACES.literary;
   return (
     <div
-      className="page-edge w-full overflow-hidden rounded-sm border border-hairline bg-paper shadow-page lift"
+      className={`page-edge relative w-full overflow-hidden rounded-sm border border-hairline bg-paper shadow-page lift ${
+        latest ? "ring-[1.5px] ring-accent" : ""
+      }`}
       style={{ aspectRatio: trimAspect(project.trim), containerType: "inline-size" }}
     >
       {project.thumbnail ? (
@@ -178,6 +193,12 @@ function Sheet({ project }: { project: LibraryProject }) {
             {face.label}
           </p>
         </div>
+      )}
+      {/* The one legitimate accent fill on a card: where the writing stopped. */}
+      {latest && (
+        <span className="absolute inset-x-0 bottom-0 bg-accent py-1 text-center text-2xs font-medium uppercase tracking-[0.12em] text-on-accent">
+          Lanjutkan
+        </span>
       )}
     </div>
   );

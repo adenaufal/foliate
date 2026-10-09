@@ -4,7 +4,7 @@
 // single-user Markdown tool does not earn the bundle. Chrome is one hairline
 // and one error strip; everything else is the text.
 
-import { useId, useRef, useState } from "react";
+import { useCallback, useId, useImperativeHandle, useRef, useState } from "react";
 // Per-icon import: the barrel is thousands of modules and slows dev compiles.
 import { WarningCircleIcon } from "@phosphor-icons/react/dist/csr/WarningCircle";
 import { COPY } from "@/lib/brand";
@@ -37,9 +37,83 @@ const MAX_IMPORT_BYTES = 2 * 1024 * 1024;
 const MEASURE = "mx-auto w-full max-w-[41rem]";
 const GUTTER = "px-page";
 
-export function MarkdownPane({ value, onChange, onImportFile, onLoadSample }: MarkdownPaneProps) {
+/** 1-based line of a character offset. */
+function lineOf(text: string, offset: number): number {
+  let line = 1;
+  for (let i = 0; i < offset && i < text.length; i++) if (text.charCodeAt(i) === 10) line++;
+  return line;
+}
+
+/** Character offset of the start of a 1-based line. */
+function offsetOfLine(text: string, line: number): number {
+  let offset = 0;
+  for (let n = 1; n < line; n++) {
+    const nl = text.indexOf("\n", offset);
+    if (nl < 0) return text.length;
+    offset = nl + 1;
+  }
+  return offset;
+}
+
+/**
+ * Where a character offset sits vertically inside the textarea's scrollable
+ * content, soft wraps included. A textarea exposes no caret geometry, so the
+ * text up to the offset is set in a mirror with the same metrics and the
+ * marker's position read off that. Rendered once per jump, never per key.
+ */
+function caretTop(ta: HTMLTextAreaElement, offset: number): number {
+  const cs = getComputedStyle(ta);
+  const mirror = document.createElement("div");
+  for (const prop of [
+    "font-family",
+    "font-size",
+    "font-weight",
+    "font-style",
+    "letter-spacing",
+    "line-height",
+    "padding-top",
+    "padding-bottom",
+    "padding-left",
+    "padding-right",
+    "border-top-width",
+    "border-bottom-width",
+    "border-left-width",
+    "border-right-width",
+    "text-indent",
+    "word-spacing",
+    "tab-size",
+  ]) {
+    mirror.style.setProperty(prop, cs.getPropertyValue(prop));
+  }
+  mirror.style.boxSizing = "border-box";
+  mirror.style.position = "absolute";
+  mirror.style.top = "0";
+  mirror.style.left = "-100000px";
+  mirror.style.visibility = "hidden";
+  mirror.style.whiteSpace = "pre-wrap";
+  mirror.style.overflowWrap = "break-word";
+  mirror.style.width = `${ta.clientWidth}px`;
+  mirror.textContent = ta.value.slice(0, offset);
+  const marker = document.createElement("span");
+  marker.textContent = "​";
+  mirror.append(marker);
+  document.body.append(mirror);
+  const top = marker.offsetTop;
+  mirror.remove();
+  return top;
+}
+
+export function MarkdownPane({
+  value,
+  onChange,
+  onImportFile,
+  onLoadSample,
+  onCaretLine,
+  ref,
+}: MarkdownPaneProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const areaRef = useRef<HTMLTextAreaElement>(null);
+  const lastLine = useRef(0);
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const promptId = useId();
@@ -48,6 +122,34 @@ export function MarkdownPane({ value, onChange, onImportFile, onLoadSample }: Ma
     if (!file) return;
     setError(file.size > MAX_IMPORT_BYTES ? LABEL.tooBig : await onImportFile(file));
   }
+
+  // Reported only when it changes: the outline re-renders per line, not per key.
+  const reportCaret = useCallback(() => {
+    const ta = areaRef.current;
+    if (!ta || !onCaretLine) return;
+    const line = lineOf(ta.value, ta.selectionStart);
+    if (line === lastLine.current) return;
+    lastLine.current = line;
+    onCaretLine(line);
+  }, [onCaretLine]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      focusLine(line: number) {
+        const ta = areaRef.current;
+        if (!ta) return;
+        const offset = offsetOfLine(ta.value, line);
+        ta.focus({ preventScroll: true });
+        ta.setSelectionRange(offset, offset);
+        // The line lands where the first line sits on a fresh page: one
+        // padding's worth below the top edge.
+        ta.scrollTop = Math.max(0, caretTop(ta, offset) - parseFloat(getComputedStyle(ta).paddingTop));
+        reportCaret();
+      },
+    }),
+    [reportCaret],
+  );
 
   return (
     <div
@@ -80,7 +182,11 @@ export function MarkdownPane({ value, onChange, onImportFile, onLoadSample }: Ma
           onChange={(e) => {
             if (error) setError(null);
             onChange(e.target.value);
+            reportCaret();
           }}
+          onSelect={reportCaret}
+          onKeyUp={reportCaret}
+          onClick={reportCaret}
           aria-label={LABEL.surface}
           aria-describedby={value ? undefined : promptId}
           // No onKeyDown by design: Tab has to keep moving focus out of here.

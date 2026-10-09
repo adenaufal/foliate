@@ -18,3 +18,21 @@ export function suppressThemeTransitions() {
     requestAnimationFrame(() => style.remove());
   });
 }
+
+/** Fired on `window` after a flip, so every toggle's label can follow. */
+export const THEME_EVENT = "foliate-theme";
+
+/** Flip the theme and remember it. The one toggle, shared by the top bar's
+ *  icon and the command palette. Returns the theme now in effect. */
+export function toggleTheme(): Theme {
+  const next: Theme = document.documentElement.classList.contains("dark") ? "light" : "dark";
+  suppressThemeTransitions();
+  document.documentElement.classList.toggle("dark", next === "dark");
+  try {
+    localStorage.setItem(THEME_KEY, next);
+  } catch {
+    // private mode — the toggle still works for this session
+  }
+  window.dispatchEvent(new CustomEvent(THEME_EVENT, { detail: next }));
+  return next;
+}
