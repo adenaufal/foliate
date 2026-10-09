@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foliate — Arah C: Meja</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..700,0..100,0..1;1,9..144,300..700,0..100,0..1&family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..500&family=Source+Serif+4:opsz,wght@8..60,400..600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#fbfaf6; --field:#f2efe7; --ink:#1a1a1a; --muted:#6b6862; --hair:#e6e2d8;
+  --accent:#8a2e2e; --on:#fbfaf6;
+  --shadow-page:0 1px 1px rgb(66 58 42/.05),0 2px 6px rgb(66 58 42/.06),0 10px 28px rgb(66 58 42/.09);
+  --sans:"Geist",ui-sans-serif,system-ui,sans-serif; --mono:"Geist Mono",ui-monospace,SFMono-Regular,monospace;
+  --disp:"Fraunces",serif; --serif:"Newsreader",serif; --book:"Spectral",serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:transparent}
+body{font-family:var(--font-sans,var(--sans));color:var(--foreground,#1a1a1a);-webkit-font-smoothing:antialiased}
+.wrap{width:100%}
+.cap{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 10px}
+.cap b{font-size:14px;font-weight:600}
+.cap span{font-size:12px;color:var(--muted-foreground,#6b6862)}
+.sec{margin-top:18px}
+
+/* ---------- scaled screen frame ---------- */
+.fit{position:relative;width:100%;overflow:hidden;border-radius:var(--radius,12px);box-shadow:0 0 0 1px rgb(0 0 0/.08),0 12px 36px rgb(0 0 0/.18)}
+.screen{transform-origin:0 0;width:1280px;height:800px;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.4;display:grid;grid-template-rows:48px 1fr 34px;overflow:hidden}
+.screen.lib{height:600px;grid-template-rows:48px 1fr}
+.lbl{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.kbd{font-family:var(--mono);font-size:10.5px;border:1px solid var(--hair);border-radius:5px;padding:1px 5px;color:var(--muted);background:var(--paper)}
+
+/* ---------- header ---------- */
+.bar{display:flex;align-items:center;gap:16px;padding:0 28px;border-bottom:1px solid var(--hair);position:relative}
+.brand{font-family:var(--disp);font-variation-settings:"SOFT" 40,"WONK" 1;font-size:19px;letter-spacing:-.01em;color:var(--ink)}
+.ttl{position:absolute;left:50%;transform:translateX(-50%);font-family:var(--disp);font-style:italic;font-variation-settings:"SOFT" 100,"WONK" 1,"opsz" 36;font-weight:400;font-size:17px;color:var(--ink);white-space:nowrap}
+.sp{flex:1}
+.save{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.cmdbtn{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+.export{font-weight:500;color:var(--accent);font-size:13.5px;display:inline-flex;align-items:center;gap:6px}
+.av{width:26px;height:26px;border-radius:50%;border:1px solid var(--hair);background:var(--field);font-family:var(--mono);font-size:11px;color:var(--muted);display:grid;place-items:center}
+
+/* ---------- body ---------- */
+.body2{display:grid;grid-template-columns:1fr 468px;min-height:0}
+.ms{padding:44px 44px 0 28px;display:grid;grid-template-columns:68px 1fr;column-gap:14px;align-content:start;overflow:hidden}
+.ms .g{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding-top:9px;text-align:right;opacity:.9}
+.ms .g.acc{color:var(--accent)}
+.ms .b{font-family:var(--serif);font-size:17.5px;line-height:1.62;color:var(--ink);max-width:60ch;margin-bottom:18px;font-variation-settings:"opsz" 16}
+.ms .b.h1{font-size:30px;line-height:1.15;font-weight:500;letter-spacing:-.012em;margin-bottom:24px;font-variation-settings:"opsz" 36}
+.ms .b.h2{font-size:22px;line-height:1.3;font-weight:500;margin-bottom:14px;font-variation-settings:"opsz" 24}
+.ms .b.q{font-style:italic;color:#3a3833}
+.ms .mk{color:var(--muted);opacity:.5;font-style:normal;font-weight:400}
+.ms em{font-style:italic}
+.ms .caret{display:inline-block;width:1.5px;height:1em;background:var(--accent);vertical-align:-2px;margin-left:1px}
+
+.proof{border-left:1px solid var(--hair);padding:30px 40px 0;display:flex;flex-direction:column;align-items:center;gap:14px}
+.tray{background:var(--field);border-radius:14px;padding:26px 28px 22px;width:100%;display:flex;flex-direction:column;align-items:center;gap:14px}
+.sheet{width:300px;aspect-ratio:5/8;background:var(--paper);box-shadow:var(--shadow-page);outline:1px solid rgb(0 0 0/.08);outline-offset:-1px;position:relative;overflow:hidden;font-family:var(--book);color:#1f1d19;flex:none}
+.sheet .in{position:absolute;inset:0;padding:11.5% 12.5% 10% 14.5%}
+.sheet .body{font-size:9.3px;line-height:13.2px;text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+.sheet .body p{text-indent:1.4em;margin:0}
+.sheet .body p.first{text-indent:0}
+.sheet .body p.first::first-letter{font-size:29px;float:left;line-height:24px;padding:2px 4px 0 0;font-weight:500}
+.sheet .body .sc{text-transform:uppercase;letter-spacing:.05em;font-size:8.5px}
+.sheet .body blockquote{margin:7px 1.6em;font-style:italic;text-indent:0}
+.sheet .opener{height:30%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;text-align:center;padding-bottom:14px}
+.sheet .opener .bab{font-size:6.5px;letter-spacing:.22em;text-transform:uppercase;color:#6b6862}
+.sheet .opener h2{font-weight:500;font-size:15.5px;letter-spacing:-.01em;margin-top:5px;color:#1a1a1a}
+.sheet .folio{position:absolute;bottom:5.5%;left:0;right:0;text-align:center;font-size:6.5px;letter-spacing:.1em;color:#6b6862}
+.pcap{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.scrub{width:100%;height:14px;position:relative;background:repeating-linear-gradient(to right,#cbc6b8 0 1px,transparent 1px calc(100% / 128));margin-top:4px}
+.scrub .cur{position:absolute;top:-3px;bottom:-3px;left:calc(100% * 6.5 / 128);width:2px;background:var(--accent)}
+.scrubn{width:100%;display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:-6px}
+.spec{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-align:center;line-height:1.7}
+.spec b{color:var(--ink);font-weight:500}
+
+.status{border-top:1px solid var(--hair);display:flex;align-items:center;gap:20px;padding:0 28px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.status .r{margin-left:auto}
+.status i{font-style:normal;color:var(--ink)}
+
+/* ---------- 1:1 details ---------- */
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:640px){.row{grid-template-columns:1fr}}
+.panel{background:var(--field);color:var(--ink);font-family:var(--sans);font-size:13px;border-radius:var(--radius,12px);padding:16px;box-shadow:0 0 0 1px rgb(0 0 0/.08),0 8px 24px rgb(0 0 0/.12);overflow:hidden;position:relative}
+.cmd{width:100%;background:var(--paper);border:1px solid var(--hair);border-radius:12px;box-shadow:var(--shadow-page);overflow:hidden}
+.cmd .in{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--hair);font-size:14px;color:var(--ink)}
+.cmd .in .ph{color:var(--muted)}
+.cmd .in .kbd{margin-left:auto}
+.cmd .grp{padding:4px 6px}
+.cmd .gl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:8px 10px 3px;font-weight:500}
+.cmd .it{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:7px;font-size:13px}
+.cmd .it.on{background:var(--field)}
+.cmd .it .v{color:var(--muted);font-family:var(--mono);font-size:11px}
+.cmd .it .k{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.cmd .it .acc{color:var(--accent)}
+.cmd .ft{display:flex;gap:16px;padding:8px 14px;border-top:1px solid var(--hair);font-family:var(--mono);font-size:10px;color:var(--muted)}
+.mscrop{background:var(--paper);border:1px solid var(--hair);border-radius:12px;height:356px;overflow:hidden;padding:26px 24px 0 10px;position:relative}
+.mscrop::after{content:"";position:absolute;left:0;right:0;bottom:0;height:70px;background:linear-gradient(to bottom,rgb(251 250 246/0),var(--paper))}
+.mscrop .ms{padding:0;grid-template-columns:58px 1fr;column-gap:12px}
+.mscrop .ms .b{font-size:16.5px;max-width:none}
+.mscrop .ms .b.h1{font-size:27px}
+.mscrop .ms .b.h2{font-size:20px}
+
+/* states */
+.states{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width:640px){.states{grid-template-columns:1fr 1fr}}
+.st{background:var(--field);border-radius:10px;padding:14px;min-height:170px;position:relative;box-shadow:0 0 0 1px rgb(0 0 0/.07);font-family:var(--sans);color:var(--ink);font-size:12px;overflow:hidden}
+.st .t{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;font-weight:500}
+.sk{width:84px;aspect-ratio:5/8;margin:0 auto;background:var(--paper);outline:1px solid rgb(0 0 0/.08);outline-offset:-1px;box-shadow:var(--shadow-page);position:relative;overflow:hidden}
+.sk::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgb(230 226 216/.9) 50%,transparent 70%)}
+.empty{font-family:var(--serif);font-style:italic;font-size:15px;line-height:1.5;color:var(--muted)}
+.empty .links{display:flex;gap:14px;margin-top:10px;font-family:var(--sans);font-style:normal;font-size:12px}
+.empty .links span{text-decoration:underline;text-underline-offset:3px;color:var(--ink)}
+.errrow{display:grid;grid-template-columns:44px 1fr;column-gap:10px;font-family:var(--serif);font-size:14px;line-height:1.5}
+.errrow .g{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);text-align:right;padding-top:4px}
+.errrow .m{color:var(--accent);font-family:var(--sans);font-size:11.5px;line-height:1.45}
+.toast{position:absolute;right:12px;bottom:12px;background:var(--paper);border:1px solid var(--hair);border-radius:8px;padding:8px 10px;font-size:11.5px;box-shadow:var(--shadow-page);display:flex;gap:10px;align-items:center}
+.toast .x{color:var(--muted)}
+.exline{font-size:13.5px;color:var(--muted);font-weight:500;display:flex;gap:6px;align-items:center}
+.prog{height:2px;background:var(--hair);border-radius:2px;margin-top:10px;overflow:hidden}
+.prog i{display:block;height:100%;width:38%;background:var(--accent)}
+
+/* ---------- library (list) ---------- */
+.libh{display:flex;align-items:baseline;gap:16px;padding:32px 48px 14px}
+.libh h1{font-family:var(--disp);font-variation-settings:"SOFT" 50,"WONK" 1;font-weight:400;font-size:30px;letter-spacing:-.015em}
+.libh .n{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.libh .sp{flex:1}
+.list{padding:0 48px}
+.rowl{display:grid;grid-template-columns:52px 1fr 200px 150px 28px;align-items:center;gap:20px;padding:14px 0;border-top:1px solid var(--hair)}
+.rowl:last-child{border-bottom:1px solid var(--hair)}
+.rowl .th{width:40px;aspect-ratio:5/8;background:var(--paper);outline:1px solid rgb(0 0 0/.1);outline-offset:-1px;box-shadow:var(--shadow-page);position:relative;overflow:hidden;font-family:var(--book);color:#1f1d19}
+.rowl .th::before{content:"";position:absolute;left:14%;right:14%;top:42%;bottom:12%;background:repeating-linear-gradient(to bottom,#2a2823 0 1px,transparent 1px 3px);opacity:.35}
+.rowl .th b{position:absolute;top:26%;left:0;right:0;text-align:center;font-size:4.5px;font-weight:500}
+.rowl .th.man::before{top:36%}.rowl .th.man b{top:20%}
+.rowl .th.con::before{top:44%}.rowl .th.con b{left:14%;right:auto;top:12%;font:300 9px var(--sans);opacity:.3}
+.rowl .tt{font-family:var(--serif);font-size:19px;font-variation-settings:"opsz" 24;color:var(--ink);line-height:1.2}
+.rowl .tt.cur{color:var(--accent)}
+.rowl .mt{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:5px}
+.rowl .pr{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.rowl .pr i{display:block;height:2px;background:var(--hair);margin-top:6px;border-radius:2px;overflow:hidden}
+.rowl .pr i b{display:block;height:100%;background:var(--accent)}
+.rowl .ago{font-size:12.5px;color:var(--muted);text-align:right}
+.rowl .dots{color:var(--muted);font-size:16px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="cap"><b>Arah C — Meja</b><span>sumbu: ekspresi &amp; interaksi · chrome tipografis tanpa panel · naskah ditulis dalam serif proporsional · satu halaman bukti + penggulir halaman · semua perintah lewat ⌘K</span></div>
+
+  <!-- ================= EDITOR SCREEN ================= -->
+  <div class="fit"><div class="screen" data-w="1280" data-h="800">
+    <header class="bar">
+      <span class="brand">Foliate</span>
+      <span class="ttl">Menulis di Tepi Senja</span>
+      <span class="sp"></span>
+      <span class="save">Tersimpan 2 menit lalu</span>
+      <span class="cmdbtn">Perintah <span class="kbd">⌘K</span></span>
+      <span class="export">Ekspor<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 17L17 7M9 7h8v8"/></svg></span>
+      <span class="av">R</span>
+    </header>
+
+    <div class="body2">
+      <section class="ms">
+        <div class="g acc">Bab 1</div><div class="b h1"><span class="mk"># </span>Mula Kata</div>
+        <div class="g"></div><div class="b">Setiap buku dimulai dari satu kalimat yang ditulis ketika ragu masih menggantung. Halaman ini bukan tentang bagaimana menjadi produktif, melainkan tentang bagaimana <span class="mk">*</span><em>bertahan</em><span class="mk">*</span> pada satu pekerjaan cukup lama sampai ia berubah menjadi sesuatu yang layak dibaca orang lain.</div>
+        <div class="g"></div><div class="b">Saya menulis paragraf pertama buku ini di sebuah warung kopi di Yogyakarta, pukul lima sore, ketika langit mulai jingga dan pelayan mulai menumpuk kursi.</div>
+        <div class="g">Kutipan</div><div class="b q"><span class="mk">&gt; </span>Waktu yang tepat tidak pernah datang. Yang datang hanyalah waktu yang biasa.</div>
+        <div class="g">§</div><div class="b h2"><span class="mk">## </span>Kenapa menulis pelan</div>
+        <div class="g"></div><div class="b">Ada anggapan bahwa menulis cepat adalah tanda bakat, dan menulis pelan adalah tanda kurangnya keyakinan. Saya pernah percaya itu. Lalu saya bertemu seorang penyunting tua yang membaca naskah dengan pensil di tangan<span class="caret"></span></div>
+      </section>
+
+      <aside class="proof">
+        <div class="tray">
+          <div class="sheet">
+            <div class="in">
+              <div class="opener"><div class="bab">Bab Satu</div><h2>Mula Kata</h2></div>
+              <div class="body">
+                <p class="first"><span class="sc">Setiap buku dimulai</span> dari satu kalimat yang ditulis ketika ragu masih menggantung. Halaman ini bukan tentang bagaimana menjadi produktif, melainkan tentang bagaimana <i>bertahan</i> pada satu pekerjaan cukup lama sampai ia berubah menjadi sesuatu yang layak dibaca orang lain.</p>
+                <p>Saya menulis paragraf pertama buku ini di sebuah warung kopi di Yogyakarta, pukul lima sore, ketika langit mulai jingga dan pelayan mulai menumpuk kursi. Tidak ada yang istimewa pada sore itu. Justru karena tidak ada yang istimewa, saya merasa boleh memulai.</p>
+                <blockquote>Waktu yang tepat tidak pernah datang. Yang datang hanyalah waktu yang biasa.</blockquote>
+                <p>Ada anggapan bahwa menulis cepat adalah tanda bakat, dan menulis pelan adalah tanda kurangnya keyakinan. Saya pernah percaya itu. Lalu saya bertemu seorang penyunting tua yang membaca naskah dengan pensil di tangan, menandai satu kata per halaman.</p>
+              </div>
+              <div class="folio">7</div>
+            </div>
+          </div>
+          <div class="pcap">hal. 7 · Bab 1 · Mula Kata</div>
+          <div class="scrub"><div class="cur"></div></div>
+          <div class="scrubn"><span>1</span><span>128</span></div>
+        </div>
+        <div class="spec"><b>Literary</b> · Spectral 10,5/15 · <b>Novel</b> 5 × 8 in<br>26 baris · margin 0,75/0,625 in · running head judul · bab</div>
+      </aside>
+    </div>
+
+    <footer class="status">
+      <span><i>Bab 1</i> · Mula Kata</span>
+      <span>4.120 kata di bab ini</span>
+      <span>38.412 kata</span>
+      <span>128 hal.</span>
+      <span>±3 jam baca</span>
+      <span class="r">Fokus <span class="kbd">⌘.</span></span>
+    </footer>
+  </div></div>
+
+  <!-- ================= DETAILS 1:1 ================= -->
+  <div class="cap sec"><b>Detail 1:1</b><span>palet perintah ⌘K menggantikan popover template, trim, dan ekspor (kiri) · permukaan naskah: serif proporsional, tanda Markdown diredupkan, label struktur di gutter (kanan)</span></div>
+  <div class="row">
+    <div class="panel">
+      <div class="cmd">
+        <div class="in"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span class="ph">Ketik perintah, atau lompat ke bab…</span><span class="kbd">esc</span></div>
+        <div class="grp">
+          <div class="gl">Penyusunan</div>
+          <div class="it">Template<span class="v">Literary ▸</span></div>
+          <div class="it">Ukuran halaman<span class="v">Novel 5 × 8 in ▸</span></div>
+          <div class="it">Huruf isi<span class="v">Spectral ▸</span></div>
+        </div>
+        <div class="grp">
+          <div class="gl">Naskah</div>
+          <div class="it">Lompat ke bab…<span class="v">7 bab</span><span class="k">⌘G</span></div>
+          <div class="it">Fokus: sembunyikan halaman<span class="k">⌘.</span></div>
+          <div class="it">Lihat sebagai spread<span class="k">⌘⇧S</span></div>
+        </div>
+        <div class="grp">
+          <div class="gl">Ekspor</div>
+          <div class="it on"><span class="acc">Ekspor PDF</span><span class="v">128 hal.</span><span class="k">⌘⇧E</span></div>
+          <div class="it">Ekspor EPUB</div>
+        </div>
+        <div class="ft"><span>↑↓ pilih</span><span>↵ jalankan</span><span>esc tutup</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="mscrop">
+        <section class="ms">
+          <div class="g acc">Bab 1</div><div class="b h1"><span class="mk"># </span>Mula Kata</div>
+          <div class="g"></div><div class="b">Setiap buku dimulai dari satu kalimat yang ditulis ketika ragu masih menggantung. Halaman ini bukan tentang bagaimana menjadi produktif, melainkan tentang bagaimana <span class="mk">*</span><em>bertahan</em><span class="mk">*</span> pada satu pekerjaan cukup lama.</div>
+          <div class="g">Kutipan</div><div class="b q"><span class="mk">&gt; </span>Waktu yang tepat tidak pernah datang. Yang datang hanyalah waktu yang biasa.</div>
+          <div class="g">§</div><div class="b h2"><span class="mk">## </span>Kenapa menulis pelan<span class="caret"></span></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STATES ================= -->
+  <div class="cap sec"><b>Keadaan</b><span>memuat · kosong · gagal compile (label di gutter) · ekspor berjalan</span></div>
+  <div class="states">
+    <div class="st"><div class="t">Memuat</div><div class="sk"></div></div>
+    <div class="st"><div class="t">Kosong</div><div class="empty">Tempel teks, atau tarik file .md ke sini.<div class="links"><span>Coba contoh</span><span>Impor berkas</span></div></div></div>
+    <div class="st"><div class="t">Gagal compile</div><div class="errrow"><div class="g">Galat</div><div><div style="color:var(--ink)">| Kolom | Nilai |</div><div class="m">Baris 42 — tabel kompleks belum didukung.</div></div></div></div>
+    <div class="st"><div class="t">Ekspor berjalan</div><div class="exline">Menyusun… <span class="mono" style="font-size:11px">62%</span></div><div class="prog"><i style="width:62%"></i></div><div class="toast">PDF tersimpan<span class="x">×</span></div></div>
+  </div>
+
+  <!-- ================= LIBRARY ================= -->
+  <div class="cap sec"><b>Perpustakaan</b><span>daftar, bukan grid: judul dalam serif, meta dalam mono, progres bab per naskah · baris penuh bisa diklik, ⋯ untuk ganti nama · duplikat · hapus</span></div>
+  <div class="fit"><div class="screen lib" data-w="1280" data-h="600">
+    <header class="bar">
+      <span class="brand">Foliate</span>
+      <span class="sp"></span>
+      <span class="cmdbtn">Perintah <span class="kbd">⌘K</span></span>
+      <span class="av">R</span>
+    </header>
+    <div>
+      <div class="libh"><h1>Naskah</h1><span class="n">5 naskah · 312 halaman · 61.904 kata</span><span class="sp"></span><span class="export">Proyek baru<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></span></div>
+      <div class="list">
+        <div class="rowl"><div class="th"><b>Mula Kata</b></div><div><div class="tt cur">Menulis di Tepi Senja</div><div class="mt">Literary · Novel 5 × 8 in · 128 hal. · 38.412 kata</div></div><div class="pr">Bab 3 dari 7<i><b style="width:43%"></b></i></div><div class="ago">Diubah 2 menit lalu</div><div class="dots">⋯</div></div>
+        <div class="rowl"><div class="th man"><b>Rumah Tanpa Alamat</b></div><div><div class="tt">Rumah Tanpa Alamat</div><div class="mt">Manuscript · Trade 6 × 9 in · 96 hal. · 19.800 kata</div></div><div class="pr">Bab 9 dari 9<i><b style="width:100%"></b></i></div><div class="ago">Diubah 3 hari lalu</div><div class="dots">⋯</div></div>
+        <div class="rowl"><div class="th con"><b>01</b></div><div><div class="tt">Hari Ketiga</div><div class="mt">Contemporary · A5 · 54 hal. · 11.260 kata</div></div><div class="pr">Bab 2 dari 5<i><b style="width:40%"></b></i></div><div class="ago">Diubah 1 minggu lalu</div><div class="dots">⋯</div></div>
+        <div class="rowl"><div class="th"><b>Peta Lama</b></div><div><div class="tt">Peta Lama</div><div class="mt">Literary · Novel 5 × 8 in · 22 hal. · 5.100 kata</div></div><div class="pr">Bab 1 dari 1<i><b style="width:18%"></b></i></div><div class="ago">Diubah 2 minggu lalu</div><div class="dots">⋯</div></div>
+        <div class="rowl"><div class="th man"><b>Catatan Dapur</b></div><div><div class="tt">Catatan Dapur</div><div class="mt">Manuscript · Novel 5 × 8 in · 12 hal. · 2.332 kata</div></div><div class="pr">Bab 1 dari 3<i><b style="width:12%"></b></i></div><div class="ago">Diubah 1 bulan lalu</div><div class="dots">⋯</div></div>
+      </div>
+    </div>
+  </div></div>
+
+</div>
+<script>
+function fit(){document.querySelectorAll('.fit').forEach(function(w){var s=w.querySelector('.screen');var W=+s.dataset.w,H=+s.dataset.h;var k=w.clientWidth/W;s.style.transform='scale('+k+')';w.style.height=(H*k)+'px';});}
+window.addEventListener('resize',fit);fit();
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fit);}
+</script>
+</body>
+</html>
